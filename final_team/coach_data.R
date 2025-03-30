@@ -74,49 +74,60 @@ for (i in 1:nrow(all_keys)) {
   yardline <- row$yardline
   key <- paste(down, distance, yardline, sep = "-")
 
-  if (distance > yardline) next
+  if (distance > yardline) next  # skip physically impossible cases
+
+  probs <- c(0.25, 0.25, 0.25, 0.25)  # default fallback
+  num_plays <- 0
 
   # Force 100% punt rule
   if (down == 4 && distance >= 10 && yardline > 50) {
-    results[[key]] <- c(down, distance, yardline, 0, 0, 0, 1)
-    next
-  }
-
-  team_row <- team_counts_all %>% filter(key == !!key)
-  fallback_row <- nfl_counts_all %>% filter(key == !!key)
-
-  if (nrow(team_row) > 0) {
-    counts <- as.numeric(unlist(team_row[1, c("run", "pass", "kick", "punt")]))
-    if (down != 4 || yardline <= 30) counts[4] <- 0
-    if (down != 4 || yardline > 50) counts[3] <- 0
-    probs <- counts / sum(counts)
-    print(paste(key, ": team"))
-  } else if (nrow(fallback_row) > 0) {
-    counts <- as.numeric(unlist(fallback_row[1, c("run", "pass", "kick", "punt")]))
-    if (down != 4 || yardline <= 30) counts[4] <- 0
-    if (down != 4 || yardline > 50) counts[3] <- 0
-    probs <- if (sum(counts) > 0) counts / sum(counts) else c(0.25, 0.25, 0.25, 0.25)
-    print(paste(key, ": nfl"))
+    probs <- c(0, 0, 0, 1)
+    print(paste(key, ": forced punt"))
   } else {
-    if (down == 4){
-      if (yardline <= 35){
-        probs <- c(0, 0, 1, 0)
-      } else {
-        probs <- c(0, 0, 0, 1)
+    team_row <- team_counts_all %>% filter(key == !!key)
+    fallback_row <- nfl_counts_all %>% filter(key == !!key)
+
+    if (nrow(team_row) > 0) {
+      counts <- as.numeric(unlist(team_row[1, c("run", "pass", "kick", "punt")]))
+      if (down != 4 || yardline <= 30) counts[4] <- 0
+      if (down != 4 || yardline > 50) counts[3] <- 0
+      if (sum(counts) > 0) {
+        probs <- counts / sum(counts)
+        num_plays <- sum(counts)
       }
+      print(paste(key, ": team"))
+    } else if (nrow(fallback_row) > 0) {
+      counts <- as.numeric(unlist(fallback_row[1, c("run", "pass", "kick", "punt")]))
+      if (down != 4 || yardline <= 30) counts[4] <- 0
+      if (down != 4 || yardline > 50) counts[3] <- 0
+      if (sum(counts) > 0) {
+        probs <- counts / sum(counts)
+        num_plays <- sum(counts)
+      }
+      print(paste(key, ": nfl"))
+    } else {
+      if (down == 4) {
+        if (yardline <= 35) {
+          probs <- c(0, 0, 1, 0)
+        } else {
+          probs <- c(0, 0, 0, 1)
+        }
+      } else {
+        probs <- c(0.5, 0.5, 0, 0)
+      }
+      print(paste(key, ": default"))
     }
-    probs <- c(0.5, 0.5, 0, 0)
-    print(paste(key, ": default"))
   }
 
-  results[[key]] <- c(down, distance, yardline, round(probs, 4))
+  # Always assign the result
+  results[[key]] <- c(down, distance, yardline, round(probs, 4), num_plays)
 }
 
 # ========== WRITE TO CSV ==========
 
 results_df <- do.call(rbind, results) %>%
   as.data.frame()
-colnames(results_df) <- c("down", "distance", "yardline", "run", "pass", "kick", "punt")
+colnames(results_df) <- c("down", "distance", "yardline", "run", "pass", "kick", "punt", "num_plays")
 
 output_csv <- paste0("team-data/biased_eps_", team, "/coach_decision_probs_", team, ".csv")
 write_csv(results_df, output_csv)
