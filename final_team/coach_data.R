@@ -8,9 +8,8 @@ library(jsonlite)
 # ========== 1) LOAD PLAY-BY-PLAY & PREP ==========
 
 pbp_data_team <- load_pbp(c(2024))
-pbp_data_nfl <- load_pbp(2019:2024)
 
-# --- Command-line args: team + threshold ---
+# --- Command-line args: team ---
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) < 1) {
   stop("Usage: Rscript script.R TEAM")
@@ -18,16 +17,38 @@ if (length(args) < 1) {
 team <- toupper(args[1])
 
 nfl_teams <- c("ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", 
-               "DET", "GB", "HOU", "IND", "JAX", "KC", "LV", "LAC", "LAR", "MIA", 
+               "DET", "GB", "HOU", "IND", "JAX", "KC", "LV", "LAC", "LA", "MIA", 
                "MIN", "NE", "NO", "NYG", "NYJ", "PHI", "PIT", "SF", "SEA", "TB", 
                "TEN", "WAS")
-
 if (!(team %in% nfl_teams)) stop(paste("Invalid team abbreviation:", team))
 
-# Convert play_type to 'play_category'
-pbp_data_team <- pbp_data_team %>%
-  filter(game_seconds_remaining >= 300, play_type %in% c("run", "pass", "field_goal", "punt"),
-        (play_type == "punt" | play_type == "field_goal") & special_teams_play == TRUE & posteam == team) %>%
+# NFL fallback cache file
+nfl_cache_file <- "cache_data/nfl_fallback_counts.csv"
+
+if (file.exists(nfl_cache_file)) {
+  nfl_counts_all <- read_csv(nfl_cache_file, col_types = cols())
+} else {
+  pbp_data_nfl <- load_pbp(2019:2024) %>%
+    filter(game_seconds_remaining >= 300, play_type %in% c("run", "pass", "field_goal", "punt")) %>%
+    mutate(play_category = case_when(
+      play_type == "run" & qb_scramble == 0 ~ 0L,
+      play_type == "pass" | qb_scramble == 1 ~ 1L,
+      play_type == "field_goal"             ~ 2L,
+      play_type == "punt"                   ~ 3L,
+      TRUE                                  ~ NA_integer_
+    )) %>%
+    filter(!is.na(play_category)) %>%
+    count(down, ydstogo, yardline_100, play_category, name = "n") %>%
+    pivot_wider(names_from = play_category, values_from = n, values_fill = 0) %>%
+    rename(run = `0`, pass = `1`, kick = `2`, punt = `3`) %>%
+    mutate(key = paste(down, ydstogo, yardline_100, sep = "-"))
+  
+  write_csv(pbp_data_nfl, nfl_cache_file)
+  nfl_counts_all <- pbp_data_nfl
+}
+
+team_counts_all <- pbp_data_team %>%
+  filter(game_seconds_remaining >= 300, play_type %in% c("run", "pass", "field_goal", "punt"), posteam == team) %>%
   mutate(play_category = case_when(
     play_type == "run" & qb_scramble == 0 ~ 0L,
     play_type == "pass" | qb_scramble == 1 ~ 1L,
@@ -35,37 +56,11 @@ pbp_data_team <- pbp_data_team %>%
     play_type == "punt"                   ~ 3L,
     TRUE                                  ~ NA_integer_
   )) %>%
-  filter(!is.na(play_category))
-
-pbp_data_nfl <- pbp_data_nfl %>%
-  filter(game_seconds_remaining >= 300, play_type %in% c("run", "pass", "field_goal", "punt"),
-        (play_type == "punt" | play_type == "field_goal") & special_teams_play == TRUE) %>%
-  mutate(play_category = case_when(
-    play_type == "run" & qb_scramble == 0 ~ 0L,
-    play_type == "pass" | qb_scramble == 1 ~ 1L,
-    TRUE                                  ~ NA_integer_
-  )) %>%
-  filter(!is.na(play_category))
-
-# ========== HELPERS ========== 
-
-cdf_to_probs <- function(cdf) {
-  return(c(cdf[1], diff(cdf)))
-}
-
-remove_punt_probs <- function(probs) {
-  probs[4] <- 0
-  total <- sum(probs)
-  if (total == 0) return(c(1, 0, 0, 0))
-  return(probs / total)
-}
-
-remove_fg_probs <- function(probs) {
-  probs[3] <- 0
-  total <- sum(probs)
-  if (total == 0) return(c(1, 0, 0, 0))
-  return(probs / total)
-}
+  filter(!is.na(play_category)) %>%
+  count(down, ydstogo, yardline_100, play_category, name = "n") %>%
+  pivot_wider(names_from = play_category, values_from = n, values_fill = 0) %>%
+  rename(run = `0`, pass = `1`, kick = `2`, punt = `3`) %>%
+  mutate(key = paste(down, ydstogo, yardline_100, sep = "-"))
 
 # ========== BUILD PROBABILITIES ==========
 
@@ -79,67 +74,42 @@ for (i in 1:nrow(all_keys)) {
   yardline <- row$yardline
   key <- paste(down, distance, yardline, sep = "-")
 
+  if (distance > yardline) next
+
   # Force 100% punt rule
   if (down == 4 && distance >= 10 && yardline > 50) {
     results[[key]] <- c(down, distance, yardline, 0, 0, 0, 1)
     next
   }
 
-  team_plays <- pbp_data_team %>%
-    filter(
-      down == down,
-      ydstogo == distance,
-      yardline_100 == yardline,
-    )
+  team_row <- team_counts_all %>% filter(key == !!key)
+  fallback_row <- nfl_counts_all %>% filter(key == !!key)
 
-  counts <- team_plays %>%
-    count(play_category) %>%
-    complete(play_category = 0:3, fill = list(n = 0)) %>%
-    arrange(play_category)
-
-  if (down != 4 || yardline <= 30) {
-    counts$n[4] <- 0
-  }
-  if (down != 4 || yardline > 50) {
-    counts$n[3] <- 0
-  }
-
-  team_n <- sum(counts$n)
-
-  nfl_plays <- pbp_data_nfl %>%
-    filter(
-      down == down,
-      ydstogo == distance,
-      yardline_100 == yardline,
-    )
-
-  fallback_counts <- team_plays %>%
-    count(play_category) %>%
-    complete(play_category = 0:3, fill = list(n = 0)) %>%
-    arrange(play_category)
-
-  if (down != 4 || yardline <= 30) {
-    fallback_counts$n[4] <- 0
-  }
-  if (down != 4 || yardline > 50) {
-    fallback_counts$n[3] <- 0
-  }
-
-  fallback_n <- sum(fallback_counts$n)
-  fallback_probs <- c(0.1, 0.1, 0.1, 0.7)
-  if (fallback_n > 0) {
-    fallback_probs <- fallback_counts$n / fallback_n
-  }
-
-  if (team_n >= 0) {
-    probs <- counts$n / team_n
+  if (nrow(team_row) > 0) {
+    counts <- as.numeric(unlist(team_row[1, c("run", "pass", "kick", "punt")]))
+    if (down != 4 || yardline <= 30) counts[4] <- 0
+    if (down != 4 || yardline > 50) counts[3] <- 0
+    probs <- counts / sum(counts)
+    print(paste(key, ": team"))
+  } else if (nrow(fallback_row) > 0) {
+    counts <- as.numeric(unlist(fallback_row[1, c("run", "pass", "kick", "punt")]))
+    if (down != 4 || yardline <= 30) counts[4] <- 0
+    if (down != 4 || yardline > 50) counts[3] <- 0
+    probs <- if (sum(counts) > 0) counts / sum(counts) else c(0.25, 0.25, 0.25, 0.25)
+    print(paste(key, ": nfl"))
   } else {
-    probs <- fallback_probs
+    if (down == 4){
+      if (yardline <= 35){
+        probs <- c(0, 0, 1, 0)
+      } else {
+        probs <- c(0, 0, 0, 1)
+      }
+    }
+    probs <- c(0.5, 0.5, 0, 0)
+    print(paste(key, ": default"))
   }
 
   results[[key]] <- c(down, distance, yardline, round(probs, 4))
-
-  print(paste(down, distance, yardline, sep='-'))
 }
 
 # ========== WRITE TO CSV ==========
@@ -148,8 +118,7 @@ results_df <- do.call(rbind, results) %>%
   as.data.frame()
 colnames(results_df) <- c("down", "distance", "yardline", "run", "pass", "kick", "punt")
 
-output_csv <- paste0("biased_eps_", team, "/coach_decision_probs_", team, ".csv")
-dir.create(paste0("biased_eps_", team), showWarnings = FALSE)
+output_csv <- paste0("team-data/biased_eps_", team, "/coach_decision_probs_", team, ".csv")
 write_csv(results_df, output_csv)
 
 cat(paste0("CSV file saved to ", output_csv, "\n"))

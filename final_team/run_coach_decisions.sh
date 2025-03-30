@@ -7,10 +7,13 @@ if [[ "$1" == "-q" ]]; then
     shift  # Remove the flag from arguments
 fi
 
+nfl_teams=("ARI" "ATL" "BAL" "BUF" "CAR" "CHI" "CIN" "CLE" "DAL" "DEN" 
+           "DET" "GB" "HOU" "IND" "JAX" "KC" "LV" "LAC" "LA" "MIA" 
+           "MIN" "NE" "NO" "NYG" "NYJ" "PHI" "PIT" "SF" "SEA" "TB" 
+           "TEN" "WAS")
+
 # Check the number of arguments
-if [ "$#" -eq 4 ]; then
-    arg0=$1
-elif [ "$#" -eq 4 ]; then
+if [ "$#" -eq 1 ]; then
     arg0=$1
 else
     echo "Usage: $0 [-q] arg0"

@@ -2,7 +2,7 @@
 
 # List of valid NFL teams
 nfl_teams=("ARI" "ATL" "BAL" "BUF" "CAR" "CHI" "CIN" "CLE" "DAL" "DEN" 
-           "DET" "GB" "HOU" "IND" "JAX" "KC" "LV" "LAC" "LAR" "MIA" 
+           "DET" "GB" "HOU" "IND" "JAX" "KC" "LV" "LAC" "LA" "MIA" 
            "MIN" "NE" "NO" "NYG" "NYJ" "PHI" "PIT" "SF" "SEA" "TB" 
            "TEN" "WAS")
 
@@ -74,7 +74,7 @@ run_command() {
 mkdir "team-data"
 mkdir "team-data/biased_eps_${arg0}"
 
-run_command "Rscript data.R \"$arg0\" \"$arg1\"" "Processing data"
+run_command "Rscript data_opt.R \"$arg0\" \"$arg1\"" "Processing data"
 # run_command "Rscript coach_data.R \"$arg0\"" "Processing decision data"
 run_command "Rscript cdf.R \"$arg1\"" "Generating cdfs"
 
