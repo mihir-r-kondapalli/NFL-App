@@ -5,10 +5,7 @@ import sys
 
 import numpy as np
 
-# 0 for cpu vs cpu, 1 for player vs cpu, 2 for player vs player
-print()
-num_plays = int(input('Number of plays -> '))
-print()
+num_plays = 0
 
 class Human:
     def intrct(game):
@@ -205,37 +202,57 @@ def end_summary():
 ai_nfl = DBAI("nfl_eps/norm_eps.csv", "nfl_decision_data/nfl_decisions.csv")
 play_data_nfl = Play_Data("nfl_cdf_data", "punt_net_yards.json")
 
-class Team:
-    def __init__(self, name, human = False):
-        name = name.upper()
-        self.name = name
-        if (name == "NFL"):
-            self.pd = play_data_nfl
-            self.ai = ai_nfl
-        else:
-            self.pd = Play_Data("team-data/"+name+"/cdf_data", "punt_net_yards.json")
-            self.ai = DBAI("team-data/"+name+"/norm_eps.csv", "team-data/"+name+"/coach_decision_probs_"+name+".csv")
+class Matchup:
+    def __init__(self, name1, name2, mode):
+        self.name1 = name1.upper()
+        self.name2 = name2.upper()
 
-        if human:
-            self.player = Human
-        else:
-            self.player = Computer(self.ai)
+        self.ai1 = ai_nfl if self.name1 == "NFL" else DBAI("team-data/"+self.name1+"/norm_eps.csv", "team-data/"+self.name1+"/coach_decision_probs_"+self.name1+".csv")
+        self.ai2 = ai_nfl if self.name2 == "NFL" else DBAI("team-data/"+self.name2+"/norm_eps.csv", "team-data/"+self.name2+"/coach_decision_probs_"+self.name2+".csv")
 
-if len(sys.argv) != 3:
-    print("need to input team1 abbreviation, team2 abbreviation")
+        if mode == 0:
+            self.player1 = Human
+            self.player2 = Human
+        elif mode == 1:
+            self.player1 = Human
+            self.player2 = Computer(self.ai2)
+        else:
+            self.player1 = Computer(self.ai1)
+            self.player2 = Computer(self.ai2)
+
+        if (self.name1 == "NFL" and self.name2 == "NFL"):
+            self.pd1 = play_data_nfl
+            self.pd2 = play_data_nfl
+        elif (self.name1 == "NFL"):
+            self.pd1 = Play_Data(("nfl_cdf_data", "team-data/"+self.name2+"/cdf_data_def"), "punt_net_yards.json")
+            self.pd2 = Play_Data(("team-data/"+self.name2+"/cdf_data"), "punt_net_yards.json")
+        elif (self.name2 == "NFL"):
+            self.pd1 = Play_Data(("team-data/"+self.name1+"/cdf_data"), "punt_net_yards.json")
+            self.pd2 = Play_Data(("nfl_cdf_data", "team-data/"+self.name1+"/cdf_data_def"), "punt_net_yards.json")
+        else:
+            self.pd1 = Play_Data(("team-data/"+self.name1+"/cdf_data", "team-data/"+self.name2+"/cdf_data_def"), "punt_net_yards.json")
+            self.pd2 = Play_Data(("team-data/"+self.name2+"/cdf_data", "team-data/"+self.name1+"/cdf_data_def"), "punt_net_yards.json")
+
+        if(self.name1 == self.name2):
+            self.name1 += '1'
+            self.name2 += '2'
+
+# mode is 0 for human v human, 1 for human vs cpu, 0 for cpu vs cpu
+if len(sys.argv) != 5:
+    print("need to input team1 abbreviation, team2 abbreviation, game mode, number of plays")
     exit()
 
-team1 = Team(sys.argv[1])
-team2 = Team(sys.argv[2])
+matchup = Matchup(sys.argv[1], sys.argv[2], int(sys.argv[3]))
+num_plays = int(sys.argv[4])
 
-if(team1.name == team2.name):
-    team1.name+='1'
-    team2.name+='2'
+if(matchup.name1 == matchup.name2):
+    matchup.name1+='1'
+    matchup.name2+='2'
 
-player1 = team1.player
-player2 = team2.player
+player1 = matchup.player1
+player2 = matchup.player2
 
-game = Game(team1.name, team2.name, num_plays, team1.pd, team2.pd)
+game = Game(matchup.name1, matchup.name2, num_plays, matchup.pd1, matchup.pd2)
 
 SIM = False
 EP = True
@@ -273,10 +290,10 @@ while(playing):
         
         epstr = ''
         if(EP):
-            if player1 != Human:
-                epstr += team1.name + " EP: " + str(player1.ai.get_ep(game.field.down, game.field.get_distance(), game.field.loc)) + ", "
-            if player2 != Human:
-                epstr += team2.name + " EP: " + str(player2.ai.get_ep(game.field.down, game.field.get_distance(), game.field.loc)) + ", "
+            if game.name1[0:3] != "NFL":
+                epstr += game.name1 + " EP: " + str(matchup.ai1.get_ep(game.field.down, game.field.get_distance(), game.field.loc)) + ", "
+            if game.name2[0:3] != "NFL":
+                epstr += game.name2 + " EP: " + str(matchup.ai2.get_ep(game.field.down, game.field.get_distance(), game.field.loc)) + ", "
             epstr += "NFL EP: " + str(ai_nfl.get_ep(game.field.down, game.field.get_distance(), game.field.loc))
             print(epstr)
 
