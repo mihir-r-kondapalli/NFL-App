@@ -1,22 +1,30 @@
 from ObjGame import Game
 from dbai import DBAI
+from play_data import Play_Data
 import pandas as pd
 import sys
 
 import numpy as np
 
-num_plays = 150  # Set num_plays as needed
+num_plays = 130  # Set num_plays as needed
 
 class Computer:
     def __init__(self, ai):
         self.ai = ai
     
     def intrct(self, game):
-        return self.ai.get_opt_play(game.field.down, game.field.get_distance(), game.field.loc)
+        return self.ai.get_next_play(game.field.down, game.field.get_distance(), game.field.loc)
     
     def xp_intrct(self, game):
         if np.random.uniform(0, 1) <= 0.945:
             game.update_score(game.XP)
+
+class GreedyComputer(Computer):
+    def __init__(self, ai):
+        super(ai)
+
+    def intrct(self, game):
+        return self.ai.get_opt_play(game.field.down, game.field.get_distance(), game.field.loc)
 
 def update_score(game, score_type, player=None):
     if score_type == "TD":
@@ -26,14 +34,13 @@ def update_score(game, score_type, player=None):
         game.update_score(game.FG)
     elif score_type == "SFT":
         game.update_score(game.SFT)
-        
-ai_bia = DBAI("biased/max_eps.csv", "biased/opt_choices.csv")
-ai_unb = DBAI("unbiased/max_eps.csv", "unbiased/opt_choices.csv")
-ai_nfl = DBAI("nflep/nfl_pbp_data.csv", "nflep/opt_choices.csv")
-ai_coach = DBAI("nflep/nfl_pbp_data.csv", "coach_decisions_grouped.csv")
 
-player1 = Computer(ai_bia)
-player2 = Computer(ai_bia)
+ai_nfl = DBAI("nfl_eps/norm_eps.csv", "nfl_decision_data/nfl_decisions.csv")
+
+player1 = Computer(ai_nfl)
+player2 = Computer(ai_nfl)
+
+play_data_nfl = Play_Data("nfl_cdf_data", "punt_net_yards.json")
 
 list1 = []
 list2 = []
@@ -53,7 +60,7 @@ wins = 0
 
 for i in range(0, games):
 
-    game = Game("AI1", "AI2", num_plays) 
+    game = Game("AI1", "AI2", num_plays, play_data_nfl, play_data_nfl) 
     playing = True
 
     game.toss()

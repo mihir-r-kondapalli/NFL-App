@@ -1,6 +1,7 @@
 from ObjGame import Game
 from dbai import DBAI
 from play_data import Play_Data
+import sys
 
 import numpy as np
 
@@ -95,6 +96,14 @@ class Computer:
             print('---------XP IS MISSED!---------')
             print(game.get_score_str())
             print()
+
+class GreedyComputer(Computer):
+    def __init__(self, ai):
+        super(ai)
+    def intrct(self, game):
+        if not(SIM):
+            cont()
+        return self.ai.get_opt_play(game.field.down, game.field.get_distance(), game.field.loc)
 
 def update_score(game, score_type, player=None):
     if(score_type == 'TD'):
@@ -193,19 +202,45 @@ def end_summary():
     print(f'Total Punts: ({t1.punts} - {t2.punts})')
     print(f'First Downs: ({t1.fds} - {t2.fds})')
 
-ai_nfl = DBAI("nflep/nfl_pbp_data.csv", "nfl_decision_data/nfl_decisions.csv")
-
+ai_nfl = DBAI("nfl_eps/norm_eps.csv", "nfl_decision_data/nfl_decisions.csv")
 play_data_nfl = Play_Data("nfl_cdf_data", "punt_net_yards.json")
 
-game = Game("HUMAN", "NFL", num_plays, play_data_nfl, play_data_nfl) 
+class Team:
+    def __init__(self, name, human = False):
+        name = name.upper()
+        self.name = name
+        if (name == "NFL"):
+            self.pd = play_data_nfl
+            self.ai = ai_nfl
+        else:
+            self.pd = Play_Data("team-data/"+name+"/cdf_data", "punt_net_yards.json")
+            self.ai = DBAI("team-data/"+name+"/norm_eps.csv", "team-data/"+name+"/coach_decision_probs_"+name+".csv")
+
+        if human:
+            self.player = Human
+        else:
+            self.player = Computer(self.ai)
+
+if len(sys.argv) != 3:
+    print("need to input team1 abbreviation, team2 abbreviation")
+    exit()
+
+team1 = Team(sys.argv[1])
+team2 = Team(sys.argv[2])
+
+if(team1.name == team2.name):
+    team1.name+='1'
+    team2.name+='2'
+
+player1 = team1.player
+player2 = team2.player
+
+game = Game(team1.name, team2.name, num_plays, team1.pd, team2.pd)
+
 SIM = False
 EP = True
 
 playing = True
-
-#player1 = Computer(ai_bia)
-player1 = Human
-player2 = Computer(ai_nfl)
 
 game.toss()
 print(game.pos.name + " won the toss!\n")
@@ -236,8 +271,13 @@ while(playing):
         print(game.get_status_str())
         print()
         
+        epstr = ''
         if(EP):
-            epstr += ", NFL EP: " + str(ai_nfl.get_ep(game.field.down, game.field.get_distance(), game.field.loc))
+            if player1 != Human:
+                epstr += team1.name + " EP: " + str(player1.ai.get_ep(game.field.down, game.field.get_distance(), game.field.loc)) + ", "
+            if player2 != Human:
+                epstr += team2.name + " EP: " + str(player2.ai.get_ep(game.field.down, game.field.get_distance(), game.field.loc)) + ", "
+            epstr += "NFL EP: " + str(ai_nfl.get_ep(game.field.down, game.field.get_distance(), game.field.loc))
             print(epstr)
 
         # Choice

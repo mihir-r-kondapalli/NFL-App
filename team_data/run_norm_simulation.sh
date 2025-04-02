@@ -78,6 +78,6 @@ run_command "Rscript rscripts/cdf.R \"$arg1\"" "Generating cdfs"
 cp -R cdf_data "team-data/${arg0}/"
 
 # Run the simulation binaries
-run_command "./executables/simulator_norm.out nfl_eps/norm_eps.csv team-data/${arg0}/norm_eps.csv aux_data/punt_net_yards.json cdf_data team-data/${arg0}/coach_decision_probs_${arg0}.csv" "Running simulation"
+run_command "./executables/simulator_norm.out nfl_eps/norm_eps.csv team-data/${arg0}/norm_eps.csv aux_data/punt_net_yards.json team-data/${arg0}/cdf_data team-data/${arg0}/coach_decision_probs_${arg0}.csv" "Running simulation"
 
 echo "Simulation completed successfully!"

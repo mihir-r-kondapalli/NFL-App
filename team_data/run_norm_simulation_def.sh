@@ -75,9 +75,11 @@ run_command "Rscript rscripts/data_opt_def.R \"$arg0\" \"$arg1\"" "Processing da
 # run_command "Rscript coach_data.R \"$arg0\"" "Processing decision data"
 run_command "Rscript rscripts/cdf.R \"$arg1\"" "Generating cdfs"
 
-cp -R cdf_data "team-data/${arg0}/"
+rm -rf "team-data/${arg0}/cdf_data_def"
+mkdir -p "team-data/${arg0}/cdf_data_def"
+cp -R cdf_data/* "team-data/${arg0}/cdf_data_def/"
 
 # Run the simulation binaries
-run_command "./executables/simulator_norm.out nfl_eps/norm_eps.csv team-data/${arg0}/norm_def_eps.csv aux_data/punt_net_yards.json cdf_data team-data/${arg0}/coach_decision_probs_def_${arg0}.csv" "Running simulation"
+run_command "./executables/simulator_norm.out nfl_eps/norm_eps.csv team-data/${arg0}/norm_def_eps.csv aux_data/punt_net_yards.json team-data/${arg0}/cdf_data_def team-data/${arg0}/coach_decision_probs_def_${arg0}.csv" "Running simulation"
 
 echo "Simulation completed successfully!"

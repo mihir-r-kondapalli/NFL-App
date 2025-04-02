@@ -55,13 +55,24 @@ class Play_Data:
                     self.data[play_type][bin_range] = {}
 
     def sample_from_cdf(self, cdf_entry):
-        values = cdf_entry["values"]
-        cdf = cdf_entry["cdf"]
+        values = cdf_entry.get("values")
+        cdf = cdf_entry.get("cdf")
+
+        # Coerce into lists if necessary
+        if not isinstance(values, list):
+            values = [values]
+        if not isinstance(cdf, list):
+            cdf = [cdf]
+
+        if len(values) != len(cdf):
+            print(f"Length mismatch in CDF entry: {cdf_entry}")
+            return 0  # fallback if something is still off
+
         rnd = random.random()
         for i, threshold in enumerate(cdf):
             if rnd <= threshold:
                 return values[i]
-        return values[-1]  # fallback to last value if not found
+        return values[-1]  # fallback
 
     def get_val(self, down, distance, play_type, yardline):
         yardline_bin = self.yardline_bins.get(yardline, (1, 10))
