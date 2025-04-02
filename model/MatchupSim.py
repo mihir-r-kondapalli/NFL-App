@@ -203,7 +203,8 @@ for i in range(0, games):
     print(f"{i+1:4d}: "+str(game.team1.score)+" - "+str(game.team2.score)+": "+str(round(1.0*wins/(i+1), 3)))
 
 
-print(1.0*wins/games)
+print("Win Probability: " + str(1.0*wins/games))
+print(f"Average Score: {np.mean(np.array(list1))} - {np.mean(np.array(list2))}")
 
 df = pd.DataFrame({'Score1': list1, 'Score2': list2})
 #df.to_csv('score_data.csv', mode='a', header=False, index=False)

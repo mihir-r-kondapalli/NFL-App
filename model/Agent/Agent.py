@@ -121,13 +121,13 @@ class StrategyAgent(nn.Module):
     def save_model(self, filepath="strategy_model.pth"):
         """Saves the trained model."""
         torch.save(self.state_dict(), filepath)
-        print(f"✅ Model saved to {filepath}")
+        print(f"Model saved to {filepath}")
 
     def load_model(self, filepath="strategy_model.pth"):
         """Loads a previously trained model."""
         try:
             self.load_state_dict(torch.load(filepath))
             self.eval()  # Set model to evaluation mode
-            print(f"✅ Model loaded from {filepath}")
+            print(f"Model loaded from {filepath}")
         except FileNotFoundError:
-            print(f"⚠️ No saved model found at {filepath}, starting fresh.")
+            print(f"No saved model found at {filepath}, starting fresh.")

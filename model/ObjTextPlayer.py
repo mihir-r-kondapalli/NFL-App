@@ -206,6 +206,7 @@ class Matchup:
     def __init__(self, name1, name2, mode):
         self.name1 = name1.upper()
         self.name2 = name2.upper()
+        self.mode = mode
 
         self.ai1 = ai_nfl if self.name1 == "NFL" else DBAI("team-data/"+self.name1+"/norm_eps.csv", "team-data/"+self.name1+"/coach_decision_probs_"+self.name1+".csv")
         self.ai2 = ai_nfl if self.name2 == "NFL" else DBAI("team-data/"+self.name2+"/norm_eps.csv", "team-data/"+self.name2+"/coach_decision_probs_"+self.name2+".csv")
@@ -254,7 +255,7 @@ player2 = matchup.player2
 
 game = Game(matchup.name1, matchup.name2, num_plays, matchup.pd1, matchup.pd2)
 
-SIM = False
+SIM = (matchup.mode == 3)
 EP = True
 
 playing = True

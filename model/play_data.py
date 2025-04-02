@@ -71,10 +71,11 @@ class Play_Data:
                     down, dist = map(int, key.split("-"))
                     off_entry = off_data[key]
                     def_entry = def_data.get(key, {"values": [0], "cdf": [1]})
-                    blended = self.blend_entries(off_entry, def_entry)
+                    min_yardline = bin_range if isinstance(bin_range, int) else bin_range[0]
+                    blended = self.blend_entries(off_entry, def_entry, min_yardline)
                     self.data[play_type][(down, dist, bin_range)] = blended
 
-    def blend_entries(self, off_entry, def_entry):
+    def blend_entries(self, off_entry, def_entry, yardline):
         ovals = off_entry.get("values", [0])
         ocd = off_entry.get("cdf", [1])
         dvals = def_entry.get("values", [0])
@@ -97,11 +98,11 @@ class Play_Data:
                 pd = dpdf.get(v, 0.0)
                 if v <= -2100: w = (0.2, 0.8)
                 elif v <= -1100: w = (0.3, 0.7)
-                elif v >= 11 and (v - 10) <= 99: w = (0.85, 0.15)
+                elif (yardline-v) <= 0: w = (0.85, 0.15)
                 elif v < 0: w = (0.4, 0.6)
                 elif v <= 3: w = (0.5, 0.5)
                 elif v <= 15: w = (0.6, 0.4)
-                else: w = (0.6, 0.4)
+                else: w = (0.7, 0.3)
                 w_off = w[0] * off_weight_scale
                 w_def = w[1] * def_weight_scale
                 total = w_off + w_def
