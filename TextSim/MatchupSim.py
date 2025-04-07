@@ -8,6 +8,17 @@ import numpy as np
 
 num_plays = 130  # Set num_plays as needed
 
+import os
+from Agent import StrategyAgent
+player_ai = StrategyAgent()
+
+model_path = 'agent_tie.pth'
+if os.path.exists(model_path):
+    print("Loading saved model...")
+    player_ai.load_model(model_path)
+else:
+    print("No saved model found. Starting from scratch.")
+
 class Computer:
     def __init__(self, ai):
         self.ai = ai
@@ -15,6 +26,23 @@ class Computer:
     def intrct(self, game):
         return self.ai.get_next_play(game.field.down, game.field.get_distance(), game.field.loc)
     
+    def xp_intrct(self, game):
+        if np.random.uniform(0, 1) <= 0.945:
+            game.update_score(game.XP)
+
+class AI_Comp:
+    def __init__(self, ai):
+        self.ai = ai
+    def intrct(self, game):
+        state = np.array([
+            game.field.down,
+            game.field.get_distance(),
+            game.field.loc,
+            game.time,
+            game.get_score_difference()
+        ], dtype=np.float32)
+        action, log_prob, entropy = self.ai.select_action(state, game)
+        return action
     def xp_intrct(self, game):
         if np.random.uniform(0, 1) <= 0.945:
             game.update_score(game.XP)
@@ -39,19 +67,27 @@ ai_nfl = DBAI("nfl_eps/norm_eps.csv", "nfl_decision_data/nfl_decisions.csv")
 
 play_data_nfl = Play_Data("nfl_cdf_data", "punt_net_yards.json")
 
+ai_player = AI_Comp(player_ai)
+
 class Matchup:
     def __init__(self, name1, name2):
         self.name1 = name1.upper()
         self.name2 = name2.upper()
-        self.player1 = Computer(ai_nfl) if self.name1 == "NFL" else Computer(DBAI("team-data/"+self.name1+"/norm_eps.csv", "team-data/"+self.name1+"/coach_decision_probs_"+self.name1+".csv"))
-        self.player2 = Computer(ai_nfl) if self.name2 == "NFL" else Computer(DBAI("team-data/"+self.name2+"/norm_eps.csv", "team-data/"+self.name2+"/coach_decision_probs_"+self.name2+".csv"))
-        if (self.name1 == "NFL" and self.name2 == "NFL"):
+
+        self.player1 = (Computer(ai_nfl) if self.name1 == "NFL" else 
+                        Computer(DBAI("team-data/"+self.name1+"/norm_eps.csv", "team-data/"
+                                      +self.name1+"/coach_decision_probs_"+self.name1+".csv"))) if self.name1 != "AI" else ai_player
+        self.player2 = (Computer(ai_nfl) if self.name2 == "NFL" else 
+                        Computer(DBAI("team-data/"+self.name2+"/norm_eps.csv", "team-data/"
+                                      +self.name2+"/coach_decision_probs_"+self.name2+".csv"))) if self.name2 != "AI" else ai_player
+        
+        if ((self.name1 == "NFL" or self.name1 == "AI") and (self.name2 == "NFL" or self.name2 == "AI")):
             self.pd1 = play_data_nfl
             self.pd2 = play_data_nfl
-        elif (self.name1 == "NFL"):
+        elif (self.name1 == "NFL" or self.name1 == "AI"):
             self.pd1 = Play_Data(("nfl_cdf_data", "team-data/"+self.name2+"/cdf_data_def"), "punt_net_yards.json")
             self.pd2 = Play_Data(("team-data/"+self.name2+"/cdf_data"), "punt_net_yards.json")
-        elif (self.name2 == "NFL"):
+        elif (self.name2 == "NFL" or self.name2 == "AI"):
             self.pd1 = Play_Data(("team-data/"+self.name1+"/cdf_data"), "punt_net_yards.json")
             self.pd2 = Play_Data(("nfl_cdf_data", "team-data/"+self.name1+"/cdf_data_def"), "punt_net_yards.json")
         else:

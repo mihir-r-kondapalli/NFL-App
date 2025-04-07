@@ -236,7 +236,7 @@ import os
 from Agent import StrategyAgent
 player_ai = StrategyAgent()
 
-model_path = 'agent_1.pth'
+model_path = 'agent_tie.pth'
 if os.path.exists(model_path):
     print("Loading saved model...")
     player_ai.load_model(model_path)
