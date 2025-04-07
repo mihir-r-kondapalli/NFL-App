@@ -94,6 +94,36 @@ class Computer:
             print(game.get_score_str())
             print()
 
+class AI_Comp:
+    def __init__(self, ai):
+        self.ai = ai
+    def intrct(self, game):
+        if not(SIM):
+            cont()
+        state = np.array([
+            game.field.down,
+            game.field.get_distance(),
+            game.field.loc,
+            game.time,
+            game.get_score_difference()
+        ], dtype=np.float32)
+        action, log_prob, entropy = self.ai.select_action(state, game)
+        return action
+    def xp_intrct(self, game):
+        if not(SIM):
+            cont()
+        if np.random.uniform(0, 1) <= 0.945:
+            print()
+            print('---------XP IS MADE!---------')
+            game.update_score(game.XP)
+            print(game.get_score_str())
+            print()
+        else:
+            print()
+            print('---------XP IS MISSED!---------')
+            print(game.get_score_str())
+            print()
+
 class GreedyComputer(Computer):
     def __init__(self, ai):
         super(ai)
@@ -206,7 +236,7 @@ import os
 from Agent import StrategyAgent
 player_ai = StrategyAgent()
 
-model_path = 'agent.pth'
+model_path = 'agent_1.pth'
 if os.path.exists(model_path):
     print("Loading saved model...")
     player_ai.load_model(model_path)
@@ -235,7 +265,7 @@ class Matchup:
             self.player1 = Computer(self.ai1)
             self.player2 = Computer(self.ai2)
         elif mode == 4:
-            self.player1 = player_ai
+            self.player1 = AI_Comp(player_ai)
             self.player2 = Computer(self.ai2)
 
         if (self.name1 == "NFL" and self.name2 == "NFL"):

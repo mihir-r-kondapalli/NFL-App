@@ -1,5 +1,6 @@
 import numpy as np
 from play_data import Play_Data
+from dbai import DBAI
 
 class Stats:
     def __init__(self):
@@ -121,6 +122,8 @@ class Game:
         self.pd1 = pd1
         self.pd2 = pd2
         self.field = Field(F_SIZE=F_SIZE, FD=fd, ED=ED_SIZE, ND=nd)
+
+        self.nfl_ep = DBAI("nfl_eps/norm_eps.csv", "nfl_decision_data/nfl_decisions.csv")
         
         # Score Constants
         self.FD = fd
@@ -280,9 +283,13 @@ class Game:
         return result, val
 
     def get_score_difference(self):
-        if(self.pos.name == self.team1.name):
-            return self.pos.score - self.team2.score
-        return self.pos.score - self.team1.score
+        return self.team1.score - self.team2.score
+    
+    def get_expected_difference(self):
+        gd = self.get_score_difference()
+        ep = self.nfl_ep.get_ep(self.field.down, self.field.loc-self.field.target, self.field.loc) * (1 if self.pos.name == self.team1.name else -1)
+        return gd + ep
+
 
     ### PRINTING STUFF
 
