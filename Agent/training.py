@@ -14,16 +14,16 @@ if len(sys.argv) != 3:
     exit()
 
 player1_ai = StrategyAgent(
-    lr=0.001,
-    eps = 1,
-    eps_decay = 0.9995,
-    min_eps = 0.01
+    lr=0.0001,
+    eps = 0,
+    eps_decay = 0,
+    min_eps = 0
 )
 
-model_path = 'agent.pth'
+model_path = 'agent_10.pth'
 if os.path.exists(model_path):
     print("Loading saved model...")
-    #player1_ai.load_model(model_path)
+    player1_ai.load_model(model_path)
 else:
     print("No saved model found. Starting from scratch.")
 

@@ -48,13 +48,38 @@ class StrategyAgent(nn.Module):
         state_tensor = torch.tensor(state, dtype=torch.float32).to(self.device)
         logits = self.net(state_tensor)
         action_probs = F.softmax(logits, dim=-1)
-        action_dist = torch.distributions.Categorical(probs=action_probs)
 
+        down = game.field.down
+        time = game.time
+        yardline = game.field.loc
+
+        # Action indices: 0=RUN, 1=PASS, 2=KICK, 3=PUNT
+        # Initial mask: all actions allowed
+        mask = torch.tensor([1, 1, 1, 1], dtype=torch.bool).to(self.device)
+
+        # Disallow KICK if: (down != 4 and time > 30) OR yardline >= 45
+        if (down != 4 and time > 30) or yardline >= 45:
+            mask[2] = False  # mask out KICK
+
+        # Disallow PUNT if: down != 4 OR yardline <= 30
+        if down != 4 or yardline <= 30:
+            mask[3] = False  # mask out PUNT
+
+        # Apply the mask
+        masked_probs = action_probs.clone()
+        masked_probs[~mask] = 0
+        if masked_probs.sum() == 0:
+            # Fallback: uniform distribution over legal actions (RUN, PASS)
+            masked_probs[:2] = 0.5
+        else:
+            masked_probs = masked_probs / masked_probs.sum()
+
+        action_dist = torch.distributions.Categorical(probs=masked_probs)
         action = action_dist.sample()
         log_prob = action_dist.log_prob(action)
         entropy = action_dist.entropy()
 
-        return action.item()+1, log_prob, entropy
+        return action.item() + 1, log_prob, entropy
 
     def xp_intrct(self, game):
         if np.random.uniform(0, 1) <= 0.945:
