@@ -1,0 +1,36 @@
+/* globals.css */
+
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+  --accent: #007000;
+  --font-main: 'Fira Code', monospace;
+}
+
+/* In globals.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+html.dark {
+  --background: #001100;
+  --foreground: #e0f0e0;
+  --accent: #00ff99;
+}
+
+html.light {
+  --background: #f0f0f0;
+  --foreground: #111111;
+  --accent: #006600;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-main);
+  margin: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

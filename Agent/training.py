@@ -15,9 +15,9 @@ if len(sys.argv) != 3:
 
 player1_ai = StrategyAgent(
     lr=0.0001,
-    eps = 0,
-    eps_decay = 0,
-    min_eps = 0
+    eps = 0.01,
+    eps_decay = 0.9995,
+    min_eps = 0.001
 )
 
 model_path = 'agent_10.pth'
@@ -88,6 +88,15 @@ for episode in range(num_episodes):
     score1 = info["score1"]
     score2 = info["score2"]
     final_score_diff = score1 - score2
+
+    final_bonus = torch.tanh(torch.tensor(final_score_diff / 50.0)).item()
+
+    '''blended_trajectory = []
+    for action, log_prob, reward, entropy in player1_ai.trajectory:
+        blended_reward = 0.7 * reward + 0.3 * final_bonus
+        blended_trajectory.append((action, log_prob, blended_reward, entropy))
+
+    player1_ai.trajectory = blended_trajectory'''
 
     rolling_rewards.append(final_score_diff)
     rolling_reward = sum(rolling_rewards) / len(rolling_rewards)
