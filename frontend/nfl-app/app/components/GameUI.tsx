@@ -35,6 +35,9 @@ export default function GameUI() {
     setMessage("Game ended. Final score: " + score1 + " - " + score2);
   }
 
+  const [team1, setTeam1] = useState('NFL')
+  const [team2, setTeam2] = useState('NFL')
+
   return (
 
     <div style={{
@@ -47,12 +50,14 @@ export default function GameUI() {
     }}>
     
       <TopBar />
-      <GameTopBar />
+      <GameTopBar team1={team1} team2={team2} setTeam1={setTeam1} setTeam2={setTeam2}/>
       <div style={{marginTop: '10px', marginBottom: '10px',}}>
         <h1>Football Simulator</h1>
       </div>
 
       <Scoreboard
+        team1={team1}
+        team2={team2}
         score1={score1}
         score2={score2}
         time={time}
@@ -62,6 +67,8 @@ export default function GameUI() {
       />
 
       <Field
+        team1={team1}
+        team2={team2}
         score1={score1}
         score2={score2}
         loc={loc}
@@ -87,7 +94,6 @@ export default function GameUI() {
         <button onClick={() => playGame(4)}>Punt</button>
         <button onClick={() => handleXP(1)}>XP</button>
         <button onClick={() => handleXP(2)}>2PT</button>
-        <button onClick={endGame}>End Game</button>
       </div>
 
       <div style={{
@@ -99,6 +105,7 @@ export default function GameUI() {
         borderRadius: '8px',
         textAlign: 'left',
         whiteSpace: 'pre-wrap',
+        color: 'white'
       }}>
         {message}
       </div>

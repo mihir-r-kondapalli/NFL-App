@@ -2,12 +2,20 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { teamColors } from '../data/team_colors'
 
-export default function GameTopBar() {
+type Props = {
+  team1: string
+  team2: string
+  setTeam1: (team: string) => void
+  setTeam2: (team: string) => void
+}
+
+export default function GameTopBar({ team1, team2, setTeam1, setTeam2 }: Props) {
   const router = useRouter()
 
-  const [team1, setTeam1] = useState('NFL')
-  const [team2, setTeam2] = useState('NFL')
+  const [year1, setYear1] = useState('2024')
+  const [year2, setYear2] = useState('2024')
   const [coach1, setCoach1] = useState('Human')
   const [coach2, setCoach2] = useState('NFL')
   const [epEnabled, setEpEnabled] = useState(true)
@@ -16,6 +24,7 @@ export default function GameTopBar() {
     'NFL', 'ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB','HOU','IND','JAX','KC','LAC','LAR','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF','TB','TEN','WAS'
   ]
 
+  const yearOptions = [2019, 2020, 2021, 2022, 2023, 2024]
   const coachOptions = ['Human', 'AI', ...teamOptions]
 
   return (
@@ -34,8 +43,17 @@ export default function GameTopBar() {
 
       {/* Team and Coach Selectors */}
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <label style={labelStyle}>Year 1:</label>
+        <select value={year1} onChange={e => setYear1(e.target.value)} style={selectStyle}>
+          {yearOptions.map(year => <option key={year} value={year}>{year}</option>)}
+        </select>
+
         <label style={labelStyle}>Team 1:</label>
-        <select value={team1} onChange={e => setTeam1(e.target.value)} style={selectStyle}>
+        <select value={team1} onChange={e => setTeam1(e.target.value)} style={{
+          ...selectStyle,
+          backgroundColor: teamColors[team1]?.primary || '#ffffff',
+          color: teamColors[team1]?.secondary || '#000000'
+        }}>
           {teamOptions.map(team => <option key={team} value={team}>{team}</option>)}
         </select>
 
@@ -44,8 +62,17 @@ export default function GameTopBar() {
           {coachOptions.map(coach => <option key={coach} value={coach}>{coach}</option>)}
         </select>
 
+        <label style={labelStyle}>Year 2:</label>
+        <select value={year2} onChange={e => setYear2(e.target.value)} style={selectStyle}>
+          {yearOptions.map(year => <option key={year} value={year}>{year}</option>)}
+        </select>
+
         <label style={labelStyle}>Team 2:</label>
-        <select value={team2} onChange={e => setTeam2(e.target.value)} style={selectStyle}>
+        <select value={team2} onChange={e => setTeam2(e.target.value)} style={{
+          ...selectStyle,
+          backgroundColor: teamColors[team2]?.primary || '#ffffff',
+          color: teamColors[team2]?.secondary || '#000000'
+        }}>
           {teamOptions.map(team => <option key={team} value={team}>{team}</option>)}
         </select>
 
@@ -56,7 +83,7 @@ export default function GameTopBar() {
 
         <button
           onClick={() => setEpEnabled(!epEnabled)}
-          style={{ ...buttonStyle, backgroundColor: epEnabled ? '#007000' : '#555' }}
+          style={{ ...buttonStyle, backgroundColor: epEnabled ? '#007000' : '#555', marginLeft: '12px' }}
         >
           {epEnabled ? 'EP: ON' : 'EP: OFF'}
         </button>

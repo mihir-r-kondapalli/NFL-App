@@ -1,6 +1,10 @@
 'use client'
 
+import { teamNames } from "../data/team_names"
+
 type ScoreboardProps = {
+  team1: string
+  team2: string
   score1: number
   score2: number
   time: string
@@ -10,6 +14,8 @@ type ScoreboardProps = {
 }
 
 export default function Scoreboard({
+  team1,
+  team2,
   score1,
   score2,
   time,
@@ -27,9 +33,9 @@ export default function Scoreboard({
         marginBottom: '10px',
         fontSize: '18px',
       }}>
-        <span>Team 1</span>
+        <span>{teamNames[team1]}</span>
         <span>{score1} - {score2}</span>
-        <span>Team 2</span>
+        <span>{teamNames[team2]}</span>
       </div>
       <div style={{
         display: 'flex',
@@ -38,9 +44,9 @@ export default function Scoreboard({
         marginBottom: '10px',
         fontSize: '16px',
       }}>
-        <span>Time: {time}</span>
-        <span>{downText}</span>
         <span>Possession: {possession === 1 ? 'T2' : 'T1'}</span>
+        <span>{downText}</span>
+        <span>Time: {time}</span>
       </div>
     </>
   )

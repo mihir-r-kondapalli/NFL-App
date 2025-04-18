@@ -1,6 +1,11 @@
 'use client'
 
+import { teamColors } from '../data/team_colors'
+import { teamNames } from '../data/team_names'
+
 type FieldProps = {
+  team1: string
+  team2: string
   score1: number
   score2: number
   loc: number            // Ball position (0–100)
@@ -14,6 +19,8 @@ type FieldProps = {
 }
 
 export default function Field({
+  team1,
+  team2,
   score1,
   score2,
   loc,
@@ -45,15 +52,20 @@ export default function Field({
           style={{
             width: "10%",
             height: "100%",
-            background: "red",
+            backgroundColor: teamColors[team1]?.primary || '#3709cd',
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "white",
+            color: teamColors[team1]?.secondary || 'white',
             fontWeight: "bold",
+            writingMode: "vertical-rl",
+            fontSize: "18px",
+            fontFamily: "monospace",
           }}
         >
-          T1
+          <span style={{transform: "rotate(180deg)"}}>
+            {(teamNames[team1] || team1).toUpperCase()}
+          </span>
         </div>
 
         {/* Field Center */}
@@ -175,15 +187,18 @@ export default function Field({
           style={{
             width: "10%",
             height: "100%",
-            background: "red",
+            backgroundColor: teamColors[team2]?.primary || '#3709cd',
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "white",
+            color: teamColors[team2]?.secondary || 'white',
             fontWeight: "bold",
+            writingMode: "vertical-rl",
+            fontSize: "18px",
+            fontFamily: "monospace",
           }}
         >
-          T2
+          {(teamNames[team2] || team2).toUpperCase()}
         </div>
       </div>
     </div>

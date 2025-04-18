@@ -3,6 +3,7 @@
 import TopBar from './components/TopBar'
 import { useRouter } from 'next/navigation'
 import Rankings from './components/ColumnRanking'
+import { offenseValues2024, defenseValues2024 } from './data/aep_values'
 
 export default function Home() {
   const router = useRouter()
@@ -82,20 +83,7 @@ export default function Home() {
           />
         </div>
 
-        <Rankings
-          offenseValues={[
-            2.43, 2.27, 2.96, 2.49, 2.28, 1.94, 2.78, 1.36,
-            1.99, 2.12, 3.05, 2.41, 2.18, 1.81, 2.25, 2.38,
-            2.40, 2.51, 1.88, 2.03, 2.44, 2.00, 1.90, 1.66,
-            2.23, 2.44, 2.20, 2.20, 2.30, 2.87, 2.09, 2.47
-          ]}
-          defenseValues={[
-            2.66, 2.55, 2.20, 2.00, 2.70, 2.28, 2.33, 2.32,
-            2.60, 1.95, 2.15, 2.00, 2.14, 2.09, 2.74, 2.25,
-            1.84, 2.47, 2.27, 2.68, 1.91, 2.44, 2.28, 2.54,
-            2.27, 1.84, 2.30, 2.55, 2.59, 2.43, 2.56, 2.17
-          ]}
-        />
+        <Rankings year={2024} offenseValues={offenseValues2024} defenseValues={defenseValues2024}/>
       </div>
     </div>
   )
