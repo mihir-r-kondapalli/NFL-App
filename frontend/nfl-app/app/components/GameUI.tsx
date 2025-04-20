@@ -200,7 +200,7 @@ export default function GameUI() {
         {num_state === 0 && (
           <>
             <button
-              onClick={() => playGame(1)} 
+              onClick={() => playGame(0)} 
               style={buttonStyle}
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#005500'}
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#004400'}

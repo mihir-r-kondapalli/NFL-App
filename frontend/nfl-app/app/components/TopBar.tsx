@@ -19,10 +19,11 @@ export default function TopBar() {
         <h2 style={{ margin: 0, color: '#19c909' }}>4th&Sim</h2></button>
 
       <div style={{ display: 'flex', gap: '12px' }}>
-        <button onClick={() => router.push('/simulate')} style={navButtonStyle}>Simulate</button>
-        <button onClick={() => router.push('/play')} style={navButtonStyle}>Play</button>
-        <button onClick={() => router.push('/rankings')} style={navButtonStyle}>Rankings</button>
-        <button onClick={() => router.push('/timeline')} style={navButtonStyle}>Timelines</button>
+      <button onClick={() => router.push('/rankings')} style={navButtonStyle}>Rankings</button>
+      <button onClick={() => router.push('/timeline')} style={navButtonStyle}>Timelines</button>
+      <button onClick={() => router.push('/eps')} style={navButtonStyle}>Expected Points</button>
+      <button onClick={() => router.push('/simulate')} style={navButtonStyle}>Simulate</button>
+      <button onClick={() => router.push('/play')} style={navButtonStyle}>Play</button>
       </div>
     </div>
   )

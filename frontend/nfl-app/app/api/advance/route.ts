@@ -20,7 +20,9 @@ type GameState = {
   message: string
 }
 
-type PlayChoice = -3 | -2 | -1 | 1 | 2 | 3 | 4
+const API_URL = (process.env.NEXT_PUBLIC_API_URL as string) || 'http://localhost:8000';
+
+type PlayChoice = -3 | -2 | -1 | 0 | 1 | 2 | 3 | 4
 
 export async function POST(req: NextRequest) {
   const { state, choice }: { state: GameState; choice: PlayChoice } = await req.json()
@@ -29,6 +31,52 @@ export async function POST(req: NextRequest) {
   const newState = await advanceGameState(state, choice)
 
   return NextResponse.json(newState)
+}
+
+// Fixed function that correctly handles the AI prediction request
+async function getPrediction(down: number, distance: number, loc: number, time: number, score_diff: number): Promise<number> {
+  try {
+    console.log('Sending strategy prediction request:', { down, distance, loc, time, score_diff })
+    
+    // Make request to your strategy prediction API
+    const response = await fetch(API_URL+'/predict', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        down,
+        distance,
+        loc,
+        time,
+        score_diff
+      }),
+      signal: AbortSignal.timeout(5000) // 5 second timeout
+    })
+    
+    // Handle non-JSON responses
+    const contentType = response.headers.get('content-type')
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text()
+      console.error('Non-JSON response received:', text)
+      return 1 // Default to run play if we can't get a prediction
+    }
+    
+    if (!response.ok) {
+      const error = await response.json()
+      console.error('API error:', error)
+      return 1 // Default to run play if we can't get a prediction
+    }
+    
+    const result = await response.json()
+    console.log('Received prediction from backend:', result)
+    
+    return result.action
+  } catch (error) {
+    console.error('Error processing strategy prediction request:', error)
+    return 1 // Default to run play if we can't get a prediction
+  }
 }
 
 // Return number refers to button status of game: -1 -> Continue Button, 0 -> Misc, 1 -> Normal (4 buttons), 2 -> Xp / 2 pt
@@ -42,8 +90,20 @@ async function advanceGameState(state: GameState, choice_val: PlayChoice): Promi
 
   if(choice_val == -1 && newState.drive){
     let year = (newState.possession == -1 ? newState.year2 : newState.year1) 
-    if(coach != 'Human'){
+    if(coach != 'Human' && coach != 'AI'){
       choice = Number(await getChoice(year, coach, newState.down, newState.distance, newState.loc))
+    }
+    else if(coach == 'AI'){
+      // Call the fixed prediction function
+      choice = await getPrediction(
+        newState.down,
+        newState.distance,
+        newState.loc,
+        newState.time,
+        newState.possession === 1 
+          ? newState.score1 - newState.score2 
+          : newState.score2 - newState.score1
+      );
     }
   }
 
@@ -125,7 +185,7 @@ async function advanceGameState(state: GameState, choice_val: PlayChoice): Promi
         } else {
           newState.score1 += 6
         }
-        newState.message = "PASS INTERCEPTED! Return for a TOUCHDOWN!"
+        newState.message = "PASS INTERCEPTED! Returned for a TOUCHDOWN!"
         newState.drive = false
         fnum = 2
       }
@@ -133,13 +193,14 @@ async function advanceGameState(state: GameState, choice_val: PlayChoice): Promi
         newState.loc = 80
         newState.message = "PASS INTERCEPTED! TOUCHBACK!"
         newState.drive = false
+        newState.possession *= -1
         fnum = 2
       }
       else{
         newState.message = `PASS INTERCEPTED! Returned for ${gain + 2100} yards!`
         fnum = 1
+        newState.possession *= -1
       }
-      newState.possession *= -1
       newState.target = Math.max(newState.loc - 10, 0)
       newState.down = 1
     }
@@ -159,12 +220,13 @@ async function advanceGameState(state: GameState, choice_val: PlayChoice): Promi
         newState.message = "Fumble! TOUCHBACK!"
         newState.drive = false
         fnum = 2
+        newState.possession *= -1
       }
       else{
         newState.message = `Fumble! Returned for ${gain + 1100} yards!`
         fnum = 1
+        newState.possession *= -1
       }
-      newState.possession *= -1
       newState.target = Math.max(newState.loc - 10, 0)
       newState.down = 1
     }
@@ -239,6 +301,7 @@ async function advanceGameState(state: GameState, choice_val: PlayChoice): Promi
     const punt = Number(await getPuntVal(newState.loc))
     if(punt > 1000){ // muffed punt
       newState.message = `Punt MUFFED!`
+      fnum = 1
       newState.loc -= punt-1100
       if (newState.loc <= 0) {
         if (newState.possession === -1) {
@@ -250,6 +313,8 @@ async function advanceGameState(state: GameState, choice_val: PlayChoice): Promi
         newState.drive = false
         fnum = 2
       }
+      newState.down = 1
+      newState.target = Math.max(newState.loc - 10, 0)
     }
     else if(punt < -1000){
       newState.message = 'Punt returned for a TOUCHDOWN!'
@@ -258,7 +323,6 @@ async function advanceGameState(state: GameState, choice_val: PlayChoice): Promi
       } else {
         newState.score1 += 6
       }
-      newState.possession *= -1
       newState.message = result + " TOUCHDOWN!"
       newState.drive = false
       fnum = 2
@@ -285,10 +349,12 @@ async function advanceGameState(state: GameState, choice_val: PlayChoice): Promi
   if (newState.time <= 0){
     return [newState, -10]
   }
+  
+  const bot_play = (newState.coach1 != 'Human' && newState.possession == 1) || (newState.coach2 != 'Human' && newState.possession == -1)
 
   if(coach != 'Human' && fnum == 2){
     let scoreDiff = newState.possession == 1 ? newState.score1 - newState.score2 : newState.score2 - newState.score1
-
+    
     if (newState.time <= 30 && (scoreDiff == 5 || scoreDiff == 1 || scoreDiff == -5 || scoreDiff == -9 || scoreDiff == -18)){
       if(Math.random() <= 0.45){
         result += ' 2PT conversion successful!'
@@ -319,8 +385,6 @@ async function advanceGameState(state: GameState, choice_val: PlayChoice): Promi
     }
     newState.possession *= -1
   }
-
-  const bot_play = (newState.coach1 != 'Human' && newState.possession == 1) || (newState.coach2 != 'Human' && newState.possession == -1)
 
   return [newState, (coach == 'Human' || !bot_play) ? fnum : -1]
 }

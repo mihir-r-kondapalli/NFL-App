@@ -6,20 +6,21 @@ library(readr)
 seasons <- 2021:2023
 pbp <- purrr::map_df(seasons, load_pbp)
 
-# Filter for valid downs (1 to 4), valid distances, and yardline between 1 and 99
-filtered <- pbp %>%
-  filter(!is.na(down), !is.na(ydstogo), !is.na(yardline_100),
-         down >= 1, down <= 4,
-         ydstogo >= 1, ydstogo <= 100,
-         yardline_100 >= 1, yardline_100 <= 99)
+# Filter out missing values and invalid yardlines
+filtered_drives <- pbp %>%
+  filter(!is.na(drive), !is.na(drive_play_id_started), !is.na(yardline_100)) %>%
+  filter(!play_type %in% c("kickoff", "extra_point", "field_goal", "punt")) %>%  # remove non-offensive plays
+  group_by(game_id, drive) %>%
+  filter(play_id == min(play_id)) %>%
+  ungroup() %>%
+  filter(yardline_100 >= 1, yardline_100 <= 99)
 
-# Group and count frequency
-frequency_df <- filtered %>%
-  group_by(down, ydstogo, yardline_100) %>%
-  summarise(frequency = n(), .groups = "drop") %>%
-  rename(distance = ydstogo, yardline = yardline_100)
+# Count how many drives started at each yardline
+drive_starts <- filtered_drives %>%
+  count(yardline_100, name = "drive_count") %>%
+  rename(yardline = yardline_100)
 
 # Save to CSV
-write_csv(frequency_df, "frequency.csv")
+write_csv(drive_starts, "drive_start_counts.csv")
 
-cat("✅ Saved: down_distance_yardline_frequency.csv\n")
+cat("Saved: drive_start_counts.csv\n")

@@ -7,7 +7,7 @@ from supabase import create_client, Client
 
 # Supabase config
 SUPABASE_URL = "https://umzwlyupfqvqhiuqlggo.supabase.co"
-with open("supabase-key", "r") as f:
+with open(".supabase-key", "r") as f:
     SUPABASE_KEY = f.read().strip()
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
