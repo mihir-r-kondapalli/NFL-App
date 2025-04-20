@@ -16,31 +16,37 @@ done
 
 # Parse positional arguments: [arg0] [iterations]
 if [ "$FETCH_DATA" = true ]; then
-    if [ "$#" -eq 0 ]; then
+    if [ "$#" -eq 1 ]; then
         arg0=20
         iterations=3
-    elif [ "$#" -eq 1 ]; then
-        arg0=$1
-        iterations=3
+        arg1=$1
     elif [ "$#" -eq 2 ]; then
         arg0=$1
+        iterations=3
+        arg1=$2
+    elif [ "$#" -eq 3 ]; then
+        arg0=$1
         iterations=$2
+        arg1=$3
     else
-        echo "Usage: $0 [-q] [-d] [arg0] [iterations]"
+        echo "Usage: $0 [-q] [-d] [arg0] [iterations] year"
         exit 1
     fi
 else
-    if [ "$#" -eq 0 ]; then
+    if [ "$#" -eq 1 ]; then
         arg0=20
         iterations=3
-    elif [ "$#" -eq 1 ]; then
+        arg1=$1
+    elif [ "$#" -eq 2 ]; then
         arg0=20
         iterations=$1
-    elif [ "$#" -eq 2 ]; then
+        arg1=$2
+    elif [ "$#" -eq 3 ]; then
         arg0=$1
         iterations=$2
+        arg1=$3
     else
-        echo "Usage: $0 [-q] [arg0] [iterations]"
+        echo "Usage: $0 [-q] [arg0] [iterations] year"
         exit 1
     fi
 fi
@@ -100,3 +106,8 @@ else
     echo "Error: Final simulation did not produce eps.csv"
     exit 1
 fi
+
+mkdir NFL${arg1}
+cp -r cdf_data NFL${arg1}/
+cp ep_data/norm_eps/final_eps.csv NFL${arg1}/
+cp decision_data/nfl_decision_counts.csv NFL${arg1}/

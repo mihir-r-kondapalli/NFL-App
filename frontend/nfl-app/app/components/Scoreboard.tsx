@@ -7,8 +7,9 @@ type ScoreboardProps = {
   team2: string
   score1: number
   score2: number
-  time: string
+  time: number
   down: number
+  loc: number
   distance: number
   possession: number
 }
@@ -20,10 +21,25 @@ export default function Scoreboard({
   score2,
   time,
   down,
+  loc,
   distance,
   possession,
 }: ScoreboardProps) {
-  const downText = `${down} & ${distance}`
+
+  let downText = `${down} & ${distance}   `;
+  if(down == 1){
+    downText = `${down}st & ${distance}   `;
+  } else if(down == 2){
+    downText = `${down}nd & ${distance}   `;
+  } else if(down == 3){
+    downText = `${down}rd & ${distance}   `;
+  } else if(down == 4){
+    downText = `${down}th & ${distance}   `;
+  }
+  else{
+    downText = '---'
+  }
+  
   return (
     <>
       <div style={{
@@ -33,9 +49,18 @@ export default function Scoreboard({
         marginBottom: '10px',
         fontSize: '18px',
       }}>
-        <span>{teamNames[team1]}</span>
-        <span>{score1} - {score2}</span>
-        <span>{teamNames[team2]}</span>
+        <span>{teamNames[team1] || team1}</span>
+        <span>{teamNames[team2] || team2}</span>
+      </div>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '80%',
+        marginBottom: '10px',
+        fontSize: '18px',
+      }}>
+        <span style={{ color: (score1 > score2 ? 'green' : score1 < score2 ? 'red' : 'black') }}>{score1}</span>
+        <span style={{ color: (score2 > score1 ? 'green' : score2 < score1 ? 'red' : 'black') }}>{score2}</span>
       </div>
       <div style={{
         display: 'flex',
@@ -44,9 +69,27 @@ export default function Scoreboard({
         marginBottom: '10px',
         fontSize: '16px',
       }}>
-        <span>Possession: {possession === 1 ? 'T2' : 'T1'}</span>
-        <span>{downText}</span>
-        <span>Time: {time}</span>
+        <span style={{ flex: 1 }}>Possession: {(possession == -1) ? team2 : team1}</span>
+        <span style={{ flex: 1, textAlign: 'right' }}>Time: {time}</span>
+      </div>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '80%',
+        marginBottom: '10px',
+        fontSize: '16px',
+      }}>
+        <span style={{ flex: 1 }}>{downText}</span>
+        <span style={{ flex: 1, textAlign: 'right'  }}>{(possession == -1 ? (loc > 50 ? team2 : loc < 50 ? team1 : '') : (loc > 50 ? team1 : loc < 50 ? team2 : '')) + (loc > 50 ? ' ' + (100 - loc)
+                              : loc < 50 ? ' ' + loc : 'Midfield')}</span>
+      </div>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '80%',
+        marginBottom: '10px',
+        fontSize: '18px',
+      }}>
       </div>
     </>
   )

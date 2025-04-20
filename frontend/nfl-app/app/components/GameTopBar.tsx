@@ -7,24 +7,30 @@ import { teamColors } from '../data/team_colors'
 type Props = {
   team1: string
   team2: string
+  year1: number
+  year2: number
+  coach1: string
+  coach2: string
+  numState: number
   setTeam1: (team: string) => void
   setTeam2: (team: string) => void
+  setNumState: (state: number) => void
+  resetGame: () => void
+  setYear1: (team: number) => void
+  setYear2: (team: number) => void
+  setCoach1: (team: string) => void
+  setCoach2: (team: string) => void
 }
 
-export default function GameTopBar({ team1, team2, setTeam1, setTeam2 }: Props) {
+export default function GameTopBar({ team1, team2, year1, year2, coach1, coach2, numState, setTeam1, setTeam2, setNumState, resetGame, setYear1, setYear2, setCoach1, setCoach2 }: Props) {
   const router = useRouter()
-
-  const [year1, setYear1] = useState('2024')
-  const [year2, setYear2] = useState('2024')
-  const [coach1, setCoach1] = useState('Human')
-  const [coach2, setCoach2] = useState('NFL')
   const [epEnabled, setEpEnabled] = useState(true)
 
   const teamOptions = [
-    'NFL', 'ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB','HOU','IND','JAX','KC','LAC','LAR','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF','TB','TEN','WAS'
+    'ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB','HOU','IND','JAX','KC','LAC','LAR','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF','TB','TEN','WAS'
   ]
 
-  const yearOptions = [2019, 2020, 2021, 2022, 2023, 2024]
+  const yearOptions = [2021, 2022, 2023, 2024]
   const coachOptions = ['Human', 'AI', ...teamOptions]
 
   return (
@@ -44,7 +50,7 @@ export default function GameTopBar({ team1, team2, setTeam1, setTeam2 }: Props) 
       {/* Team and Coach Selectors */}
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
         <label style={labelStyle}>Year 1:</label>
-        <select value={year1} onChange={e => setYear1(e.target.value)} style={selectStyle}>
+        <select value={year1} onChange={e => setYear1(Number(e.target.value))} style={selectStyle}>
           {yearOptions.map(year => <option key={year} value={year}>{year}</option>)}
         </select>
 
@@ -58,12 +64,16 @@ export default function GameTopBar({ team1, team2, setTeam1, setTeam2 }: Props) 
         </select>
 
         <label style={labelStyle}>Coach 1:</label>
-        <select value={coach1} onChange={e => setCoach1(e.target.value)} style={selectStyle}>
+        <select value={coach1} onChange={e => setCoach1(e.target.value)} style={{
+          ...selectStyle,
+          backgroundColor: teamColors[coach1]?.primary || '#ffffff',
+          color: teamColors[coach1]?.secondary || '#000000'
+        }}>
           {coachOptions.map(coach => <option key={coach} value={coach}>{coach}</option>)}
         </select>
 
         <label style={labelStyle}>Year 2:</label>
-        <select value={year2} onChange={e => setYear2(e.target.value)} style={selectStyle}>
+        <select value={year2} onChange={e => setYear2(Number(e.target.value))} style={selectStyle}>
           {yearOptions.map(year => <option key={year} value={year}>{year}</option>)}
         </select>
 
@@ -77,7 +87,11 @@ export default function GameTopBar({ team1, team2, setTeam1, setTeam2 }: Props) 
         </select>
 
         <label style={labelStyle}>Coach 2:</label>
-        <select value={coach2} onChange={e => setCoach2(e.target.value)} style={selectStyle}>
+        <select value={coach2} onChange={e => setCoach2(e.target.value)} style={{
+          ...selectStyle,
+          backgroundColor: teamColors[coach2]?.primary || '#ffffff',
+          color: teamColors[coach2]?.secondary || '#000000'
+        }}>
           {coachOptions.map(coach => <option key={coach} value={coach}>{coach}</option>)}
         </select>
 
@@ -91,9 +105,8 @@ export default function GameTopBar({ team1, team2, setTeam1, setTeam2 }: Props) 
 
       {/* Action Buttons */}
       <div style={{ display: 'flex', gap: '10px' }}>
-        <button onClick={() => alert('Game not implemented yet')} style={{ ...buttonStyle, backgroundColor: '#282899' }}>Play</button>
-        <button onClick={() => alert('Restart not implemented yet')} style={{ ...buttonStyle, backgroundColor: '#29ad29' }}>Restart</button>
-        <button onClick={() => alert('End not implemented yet')} style={{ ...buttonStyle, backgroundColor: '#F00' }}>End</button>
+        <button onClick={() => resetGame()} style={{ ...buttonStyle, backgroundColor: '#29ad29' }}>Restart</button>
+        <button onClick={() => setNumState(0)} style={{ ...buttonStyle, backgroundColor: '#F00' }}>End</button>
         <button onClick={() => router.push('/')} style={buttonStyle}>Home</button>
       </div>
     </div>

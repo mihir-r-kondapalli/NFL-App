@@ -13,12 +13,13 @@ nfl_teams=("ARI" "ATL" "BAL" "BUF" "CAR" "CHI" "CIN" "CLE" "DAL" "DEN"
            "TEN" "WAS")
 
 # Check the number of arguments
-if [ "$#" -eq 1 ]; then
+if [ "$#" -eq 2 ]; then
     arg0=$1
+    arg1=$2
 else
-    echo "Usage: $0 [-q] arg0"
+    echo "Usage: $0 [-q] arg0 arg1"
     echo "-q: Quiet mode (only show progress updates and replace final number with runtime)"
-    echo "arg0: team abbreviation"
+    echo "arg0: team abbreviation, year"
     exit 1
 fi
 
@@ -64,6 +65,6 @@ run_command() {
 mkdir "team-data"
 mkdir "team-data/${arg0}"
 
-run_command "Rscript rscripts/coach_data.R \"$arg0\"" "Processing decision data"
+run_command "Rscript rscripts/coach_data.R \"$arg0\" \"$arg1\"" "Processing decision data"
 
 echo "Completed successfully!"

@@ -15,15 +15,18 @@ while [[ "$1" == -* ]]; do
 done
 
 # Default arg0 if not supplied
-if [ "$#" -eq 0 ]; then
+if [ "$#" -eq 1 ]; then
     arg0=10
-elif [ "$#" -eq 1 ]; then
+    arg1=$1
+elif [ "$#" -eq 2 ]; then
     arg0=$1
+    arg1=$2
 else
-    echo "Usage: $0 [-q] [-d] [arg0]"
+    echo "Usage: $0 [-q] [-d] [arg0] arg1"
     echo "-q: Quiet mode"
     echo "-d: Fetch/refresh data before simulation"
     echo "arg0: minimum elements per bin (default: 10)"
+    echo "arg1: year"
     exit 1
 fi
 
@@ -53,7 +56,7 @@ run_command() {
 
 # Optionally fetch data
 if [ "$FETCH_DATA" = true ]; then
-    run_command "Rscript rscripts/data.R \"$arg0\"" "Processing data"
+    run_command "Rscript rscripts/data.R \"$arg0\" \"$arg1\"" "Processing data"
     run_command "Rscript rscripts/cdf.R \"$arg0\"" "Generating CDFs"
 fi
 

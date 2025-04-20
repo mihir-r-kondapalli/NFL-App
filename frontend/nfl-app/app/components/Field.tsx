@@ -11,11 +11,11 @@ type FieldProps = {
   loc: number            // Ball position (0–100)
   target: number         // First down marker (0–100)
   down: number
-  time: string
+  time: number
   ep1: number
   ep2: number
   possessionIndicator: number  // -1 = Team 1, 1 = Team 2
-  no_disp: number
+  no_disp: boolean
 }
 
 export default function Field({
@@ -128,13 +128,13 @@ export default function Field({
           ))}
 
           {/* Markers (only shown if no_disp === 0) */}
-          {no_disp === 0 && (
+          {no_disp === false && (
             <>
               {/* Line of Scrimmage */}
               <div
                 style={{
                   position: "absolute",
-                  left: `${loc}%`,
+                  left: `${possessionIndicator === 1 ? 100 - loc: loc}%`,
                   top: "0",
                   height: "100%",
                   width: "2px",
@@ -146,7 +146,7 @@ export default function Field({
               <div
                 style={{
                   position: "absolute",
-                  left: `${target}%`,
+                  left: `${possessionIndicator === 1 ? 100 - target: target}%`,
                   top: "0",
                   height: "100%",
                   width: "2px",
@@ -157,25 +157,26 @@ export default function Field({
               {/* Ball Marker (Triangle) */}
               <div
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   left:
                     possessionIndicator === -1
-                      ? `calc(${Number(loc)}% + 0.5%)`
-                      : `calc(${Number(loc)}% - 0.5%)`,
-                  top: "50%",
-                  transform: "translate(-50%, -50%)",
-                  width: "0",
-                  height: "0",
+                      ? `calc(${loc}% - 0.5%)`  // nudge to the *left* of LOS
+                      : `calc(${100 - loc}% + 0.5%)`, // nudge right when +1
+                  top: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: 0,
+                  height: 0,
+                  borderTop: '8px solid transparent',
+                  borderBottom: '8px solid transparent',
+                  // flip the solid side
                   borderLeft:
-                    possessionIndicator === -1
-                      ? "10px solid brown"
-                      : "10px solid transparent",
-                  borderRight:
                     possessionIndicator === 1
-                      ? "10px solid brown"
-                      : "10px solid transparent",
-                  borderTop: "8px solid transparent",
-                  borderBottom: "8px solid transparent",
+                      ? '10px solid brown'          // Team 2 → triangle points RIGHT
+                      : '10px solid transparent',
+                  borderRight:
+                    possessionIndicator === -1
+                      ? '10px solid brown'          // Team 1 → triangle points LEFT
+                      : '10px solid transparent',
                 }}
               />
             </>

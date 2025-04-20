@@ -7,11 +7,12 @@ library(jsonlite)
 # --- Command line argument: team + threshold ---
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) != 2){
-  print("Need team and threshold")
+  print("Need team, threshold, and year")
   quit(save = "no")
 }
 team <- args[1]
 threshold <- as.numeric(args[2])
+year <- as.numeric(args[3])
 
 # --- Helpers ---
 blend_team_league_with_interpolation <- function(
@@ -65,7 +66,7 @@ blend_team_league_with_interpolation <- function(
 }
 
 # --- Load pbp data ---
-pbp_data <- load_pbp(c(2024))
+pbp_data <- load_pbp(c(year))
 
 # --- Yardline binning ---
 individual_bins <- setNames(as.list(1:20), as.character(1:20))

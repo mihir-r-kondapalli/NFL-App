@@ -6,13 +6,14 @@ library(jsonlite)
 
 # --- Command line argument: team + threshold ---
 args <- commandArgs(trailingOnly = TRUE)
-if (length(args) != 2){
-  print("Need team and threshold")
+if (length(args) != 3){
+  print("Need team, threshold, and year")
   quit(save = "no")
 }
 
 team <- args[1]
 threshold <- as.numeric(args[2])
+year <- as.numeric(args[3])
 
 # --- Updated Blending Function with 70/30 logic ---
 blend_distributions <- function(team_data, league_data, key, all_keys, threshold, final_sample_size = 20) {
@@ -80,11 +81,11 @@ find_neighbor_keys <- function(down, distance, all_keys) {
 }
 
 # --- Load or cache processed data ---
-cache_file <- "cache_data/pbp_processed_2024.rds"
+cache_file <- paste0("cache_data/pbp_processed_", year, ".rds")
 if (file.exists(cache_file)) {
   pbp_data <- readRDS(cache_file)
 } else {
-  pbp_data <- load_pbp(c(2024)) %>%
+  pbp_data <- load_pbp(c(year)) %>%
     filter(game_seconds_remaining >= 300, season_type == "REG", play_type %in% c("run", "pass"), !is.na(yards_gained)) %>%
     mutate(
       is_run = play_type == "run" & qb_scramble == 0,

@@ -3,13 +3,15 @@ options(repos = c(CRAN = "https://cran.rstudio.com/"))
 library(nflfastR)
 library(tidyverse)
 
+year <- if (length(args) >= 1) as.numeric(args[1]) else 2024
+
 # Load 2024 play-by-play data
-pbp <- load_pbp(2024)
+pbp <- load_pbp(c(year))
 
 # Filter and summarize EP by down-distance-yardline combo
 ep_summary <- pbp %>%
   filter(
-    season == 2024,
+    season == year,
     season_type == "REG",
     !is.na(down), down >= 1 & down <= 4,
     !is.na(ydstogo), ydstogo >= 1 & ydstogo <= 20,

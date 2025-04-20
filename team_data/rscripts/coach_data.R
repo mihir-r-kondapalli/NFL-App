@@ -7,14 +7,15 @@ library(jsonlite)
 
 # ========== 1) LOAD PLAY-BY-PLAY & PREP ==========
 
-pbp_data_team <- load_pbp(c(2024))
-
 # --- Command-line args: team ---
 args <- commandArgs(trailingOnly = TRUE)
-if (length(args) < 1) {
-  stop("Usage: Rscript script.R TEAM")
+if (length(args) < 2) {
+  stop("Usage: Rscript script.R TEAM YEAR")
 }
 team <- toupper(args[1])
+year <- as.numeric(args[2])
+
+pbp_data_team <- load_pbp(c(year))
 
 nfl_teams <- c("ARI", "ATL", "BAL", "BUF", "CAR", "CHI", "CIN", "CLE", "DAL", "DEN", 
                "DET", "GB", "HOU", "IND", "JAX", "KC", "LV", "LAC", "LA", "MIA", 

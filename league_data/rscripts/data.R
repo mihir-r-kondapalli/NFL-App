@@ -4,9 +4,11 @@ library(nflfastR)
 library(tidyverse)
 library(jsonlite)
 
-# --- Command line argument: sample size threshold ---
+# --- Command line argument: sample size threshold, year ---
 args <- commandArgs(trailingOnly = TRUE)
-threshold <- if (length(args) == 0) 20 else as.numeric(args[1])
+threshold <- if (length(args) >= 1) as.numeric(args[1]) else 20
+year <- if (length(args) >= 2) as.numeric(args[2]) else 2024
+
 
 # --- Interpolation helpers ---
 
@@ -62,7 +64,7 @@ pad_short_keys <- function(distributions, all_keys, threshold) {
 }
 
 # --- Load play-by-play data ---
-pbp_data <- load_pbp(c(2024))
+pbp_data <- load_pbp(c(year))
 
 # --- Define yardline bins ---
 individual_bins <- setNames(as.list(1:20), as.character(1:20))

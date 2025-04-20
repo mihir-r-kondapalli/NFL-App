@@ -14,17 +14,20 @@ if [[ "$1" == "-q" ]]; then
 fi
 
 # Check the number of arguments
-if [ "$#" -eq 1 ]; then
+if [ "$#" -eq 2 ]; then
     arg0=$1
     arg1=5  # Default value if arg0 is missing
-elif [ "$#" -eq 2 ]; then
+    arg2=$2
+elif [ "$#" -eq 3 ]; then
     arg0=$1
     arg1=$2
+    arg2=$3
 else
-    echo "Usage: $0 [-q] arg0 [arg1]"
+    echo "Usage: $0 [-q] arg0 [arg1] arg2"
     echo "-q: Quiet mode (only show progress updates and replace final number with runtime)"
     echo "arg0: team abbreviation"
     echo "arg1: minimum number of elements for a down, distance, yardline to be sampled"
+    echo "arg2: year"
     echo "If arg1 is not provided, it defaults to 20."
     exit 1
 fi
@@ -71,7 +74,7 @@ run_command() {
 mkdir "team-data"
 mkdir "team-data/${arg0}"
 
-run_command "Rscript rscripts/data_opt_def.R \"$arg0\" \"$arg1\"" "Processing data"
+run_command "Rscript rscripts/data_opt_def.R \"$arg0\" \"$arg1\" \"$arg2\"" "Processing data"
 # run_command "Rscript coach_data.R \"$arg0\"" "Processing decision data"
 run_command "Rscript rscripts/cdf.R \"$arg1\"" "Generating cdfs"
 
