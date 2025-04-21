@@ -31,7 +31,7 @@ export default function Contact() {
             About Me
           </h1>
           <p style={{ fontSize: '18px', color: wordColor, lineHeight: '1.6', marginTop: '20px' }}>
-            I'm Mihir Kondapalli, a second-year honors Computer Science student at UCSB with a passion for computer science, physics, sports, data, and for turning complex ideas into intuitive, interactive experiences.
+            I'm Mihir Kondapalli, a second-year honors Computer Science student at UCSB with a passion for software engineering, physics, sports, data, and for turning complex ideas into intuitive, interactive experiences.
           </p>
         </section>
 
