@@ -18,5 +18,11 @@ COPY . .
 # Expose the port the app runs on
 EXPOSE 8000
 
-# Command to run the application
-CMD ["python", "combined_api.py"]
+# Default environment variables (can be overridden at runtime)
+ENV HOST=0.0.0.0
+ENV PORT=8000
+ENV ALLOWED_ORIGINS=https://your-frontend-domain.com
+ENV DEFAULT_NUM_PLAYS=130
+
+# Use Gunicorn with Uvicorn workers for production
+CMD exec gunicorn --bind ${HOST}:${PORT} --workers 4 --worker-class uvicorn.workers.UvicornWorker --timeout 120 api:app

@@ -95,12 +95,12 @@ export default function GameTopBar({ team1, team2, year1, year2, coach1, coach2,
           {coachOptions.map(coach => <option key={coach} value={coach}>{coach}</option>)}
         </select>
 
-        <button
+        {/* <button
           onClick={() => setEpEnabled(!epEnabled)}
           style={{ ...buttonStyle, backgroundColor: epEnabled ? '#007000' : '#555', marginLeft: '12px' }}
         >
           {epEnabled ? 'EP: ON' : 'EP: OFF'}
-        </button>
+        </button> */}
       </div>
 
       {/* Action Buttons */}

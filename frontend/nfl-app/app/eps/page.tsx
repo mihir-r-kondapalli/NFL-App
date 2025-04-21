@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import TopBar from '../components/TopBar'
 import Button from '../components/Button'
-import { supabase } from '../api/advance/supabaseClient'
 import { teamColors } from '../data/team_colors'
 import { teamNames } from '../data/team_names'
 import { 
@@ -170,48 +169,29 @@ export default function EPSPage() {
       // Prepare an array to hold all data for all selected teams and years
       let allTeamData: any[] = [];
       
-      // For each team-year-defense triplet
       for (const { team, year, isDefense } of teamPairs) {
-        const { data, error } = await supabase
-          .from('expected_points')
-          .select('yardline, ep, distance')
-          .eq('team', team)
-          .eq('year', year)
-          .eq('is_defense', isDefense)
-          .eq('down', selectedDown)
-          .lte('distance', selectedDistance)
-          .order('yardline');
-
+        const response = await fetch('/api/fetchEPs', {
+          method: 'POST',
+          body: JSON.stringify({ team, year, isDefense, down: selectedDown, distance: selectedDistance }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+      
+        const { data, error } = await response.json();
+      
         if (error) throw error;
-
-        // Apply the custom logic client-side
-        const filtered = data?.filter(row =>
-          row.distance === selectedDistance ||
-          (row.distance === row.yardline && row.distance < selectedDistance)
-        );
-
-        if (filtered?.length) {
-          const transformed = filtered.map(d => ({
-            yardline: d.yardline,
-            [`${team} ${year}`]: d.ep
-          }));
-          allTeamData.push({ team, year, data: transformed });
-        }
-        
+      
         if (data && data.length > 0) {
-          // Create a display name that includes team, year and offense/defense
           const displayName = `${team} ${year} ${isDefense ? 'DEF' : 'OFF'}`;
-          
-          // Transform data for this team/year/side combination
-          const transformedData = data.map(item => ({
-            yardline: item.yardline,
-            [displayName]: item.ep
+      
+          // Transform data
+          const transformedData = data.map((row: any) => ({
+            yardline: row.yardline,
+            [displayName]: row.ep
           }));
-          
-          // Add to our collection
+      
           allTeamData.push({ team, year, isDefense, displayName, data: transformedData });
         }
-      }
+      }      
       
       // Process the data for the chart
       processChartData(allTeamData);

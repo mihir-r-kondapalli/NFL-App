@@ -1,5 +1,4 @@
 from fastapi import FastAPI, HTTPException, Query, Body
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from typing import List, Optional, Tuple, Dict, Any
 import uvicorn
@@ -12,6 +11,16 @@ import numpy as np
 import os
 from fastapi.middleware.cors import CORSMiddleware
 
+import os
+
+# API settings
+HOST = os.environ.get("HOST", "0.0.0.0")
+PORT = int(os.environ.get("PORT", "8000"))
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "info")
+
+# CORS Settings
+ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "https://your-frontend-domain.com").split(",")
+
 app = FastAPI(
     title="Football Game Simulation API",
     description="API for simulating football games between different decision-making strategies",
@@ -20,7 +29,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://your-frontend-domain.com"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

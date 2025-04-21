@@ -24,6 +24,7 @@ export default function TopBar() {
       <button onClick={() => router.push('/eps')} style={navButtonStyle}>Expected Points</button>
       <button onClick={() => router.push('/simulate')} style={navButtonStyle}>Simulate</button>
       <button onClick={() => router.push('/play')} style={navButtonStyle}>Play</button>
+      <button onClick={() => router.push('/about')} style={navButtonStyle}>About</button>
       </div>
     </div>
   )
