@@ -1,5 +1,7 @@
 # 🏈 NFL-App
 
+4th & Sim app deployed at https://fourthandsim.vercel.app
+
 An end-to-end toolkit for modeling, simulating, and playing NFL football games using real data, statistical modeling, and reinforcement learning.
 
 This project provides:
@@ -7,6 +9,7 @@ This project provides:
 - A framework for simulating team-vs-team matchups using probabilistic play outcomes,
 - A text-based football game player with strategy decisions,
 - A neural network agent trained via reinforcement learning to play the game optimally.
+- An app to interact with all of these tools.
 
 ---
 
@@ -24,6 +27,9 @@ This project provides:
 - **Reinforcement Learning Agent**  
   Trains a neural network that learns the best play to call (run, pass, punt, field goal) in various game situations.
 
+- **Objective Rankings**  
+  Uses a combination of EP and play frequency metrics to generate an objective ranking of the teams.
+
 ---
 
 ## 2. Repository Structure
@@ -31,8 +37,10 @@ This project provides:
 Agent/ - This directory is where the reinforcement learning agent is trained. \
 leage_data/ - The league wide data is retrieved here. Search tree drive simulations occur here to determine NFL EP vs field position. \
 team_data/ - Team by Team EP calculations occur here, both for defense and offense. \
-TextSim/ - This is where Agents/Humans play against each other. MatchupSim.py simulates large numbers of games and ObjTextPlayer.py provides an interactive game. \
-compare_eps.ipynb - This is where the teams are ranked by their EP ranges. \
+frontend/ - Frontend for the 4th & Sim app.
+backend/ - Backend for the 4th & Sim app.
+TextSim/ - This is where Agents/Humans play against each other in the console. MatchupSim.py simulates large numbers of games and ObjTextPlayer.py provides an interactive game. \
+compare_eps.ipynb - This is where the teams are ranked by their EP ranges.
 
 ---
 
@@ -42,7 +50,7 @@ compare_eps.ipynb - This is where the teams are ranked by their EP ranges. \
 3. Train AI agents to develop NFL game strategies.
 4. Offer a fun and educational football game environment for testing strategies.
 
-🙏 Acknowledgments
+Acknowledgments
 NFL play-by-play data provided by nflfastR
 Neural agent inspired by actor-critic RL methods
 EP simulation structure inspired by recursive dynamic programming search trees.
