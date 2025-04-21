@@ -1,4 +1,5 @@
 supabase-key
 supabase_script.py
-.fourthandsimapi.pem
+awsfreekey.pem
+awsfreekey_backup.pem
 backend/.env
