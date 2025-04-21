@@ -1,22 +1,20 @@
 // app/layout.tsx
 import './globals.css'
+import type { Metadata } from 'next'
 
-export const metadata = {
-  title: 'Football Simulator',
-  description: 'React/Next.js football simulation game',
+export const metadata: Metadata = {
+  title: '4th & Sim',
+  description: 'NFL strategy simulation app',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const now = new Date()
-  const hour = now.getHours()
-  const isDay = true // hour >= 6 && hour < 18 // Light mode from 6am–6pm
-  const theme = isDay ? 'light' : 'dark'
-
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en" className={theme}>
-      <body>
-        {children}
-      </body>
+    <html lang="en">
+      <body>{children}</body>
     </html>
   )
 }
