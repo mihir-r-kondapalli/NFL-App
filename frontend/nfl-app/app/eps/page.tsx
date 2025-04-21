@@ -362,7 +362,7 @@ export default function EPSPage() {
           color: theme.colors.accent.primary,
           fontWeight: 'bold'
         }}>
-          Expected Points System (EPS)
+          Expected Points (EPs)
         </h1>
         <p style={{ 
           fontSize: '16px', 
@@ -821,13 +821,16 @@ export default function EPSPage() {
           </p>
           
           <div style={{ marginTop: '20px', padding: '15px', backgroundColor: theme.colors.background.dark, borderRadius: '4px', border: `1px solid ${theme.colors.accent.primary}` }}>
-            <h3 style={{ color: theme.colors.text.primary, marginBottom: '10px', fontSize: '16px', fontWeight: 'bold' }}>Football Rules</h3>
+            <h3 style={{ color: theme.colors.text.primary, marginBottom: '10px', fontSize: '16px', fontWeight: 'bold' }}>Note about NFL Expected Points vs 4th & Sim Expected Points</h3>
             <ul style={{ color: theme.colors.text.secondary, paddingLeft: '20px', lineHeight: '1.5' }}>
-              <li style={{ marginBottom: '8px' }}>First down is always 10 yards (distance = 10)</li>
-              <li style={{ marginBottom: '8px' }}>Distance for 2nd, 3rd, and 4th down can range from 1 to 20 yards</li>
-              <li style={{ marginBottom: '8px' }}>The goal line (99) is a special case where the distance is the yards to goal</li>
-              <li>Expected points change dramatically in the red zone (yardline 80+)</li>
+              <li style={{ marginBottom: '8px' }}> The NFL Expected Points metric is overreliant on league wide data. It treats teams like the 2024 Detroit Lions the same as the 2017 Cleveland Browns. Finding the expected points of
+              an individual team is impossible with traditional metrics. EPA/play does not fix this as it itself depends on the NFL EP model.</li>
+              <li style={{ marginBottom: '8px' }}>The metric also ignores the strength of the defense, the EP values are too static to handle matchups.</li>
+              <li style={{ marginBottom: '8px' }}>It also artificially smooths over edge cases by applying linear or GAM models that morph the metric to seem more aesthetically pleasing, ignoring real
+              outliers and data points that are just as important.</li>
             </ul>
+            The <strong>4th & Sim</strong> Expected Points model fixes a lot of these issues by using real, individual play distributions and play decisions. It uses dynamic programming
+            algorithms to generate accurate EP values for individual offenses and defenses.
           </div>
         </div>
       </div>

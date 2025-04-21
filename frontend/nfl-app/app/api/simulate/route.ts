@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
           'Accept': 'application/json'
         },
         body: JSON.stringify(apiPayload),
-        signal: AbortSignal.timeout(10000) // 10 second timeout
+        signal: AbortSignal.timeout(20000) // 20 second timeout
       })
       
       // Handle non-JSON responses

@@ -51,15 +51,15 @@ export default function Home() {
         >
           {/* Text Section */}
           <div style={{ flex: '1 1 400px', minWidth: '300px' }}>
-            <div style={{ fontSize: '16px', lineHeight: '1.7', color: '#888' }}>
+            <div style={{ fontSize: '18px', lineHeight: '1.7', color: wordColor }}>
               <p style={{ marginBottom: '10px' }}>
-                <strong>4th & Sim</strong> uses a custom-built NFL simulation engine to generate realistic
-                play-by-play results. Whether you're simulating games, calling plays live, or playing a 
-                trained neural network, the underlying models give accurate and dynamic outcomes.
+              <strong>4th & Sim</strong> is a football simulation and analytics platform built around expected points, team strategy, and dynamic decision-making.
+              It blends real NFL data with interactive game flow, allowing users to simulate drives, visualize field position value, and explore
+              strategic outcomes. TLDR? It's about <strong>accuracy</strong> and <strong>flexibility</strong>.
               </p>
               <p>
-                These 2024 NFL rankings are powered by unbiased deep tree search algorithms written in C++,
-                allowing precise and powerful measurements of offensive and defensive performance.
+                These NFL rankings are powered by unbiased deep tree search algorithms written in C++ which use play by play data
+                from <strong>nflfastR</strong>, allowing precise and powerful measurements of offensive and defensive performance.
                 And this is just the beginning of what the engine can do.
               </p>
             </div>
@@ -99,3 +99,5 @@ const navButton = {
   cursor: 'pointer',
   transition: 'background-color 0.2s ease-in-out',
 }
+
+const wordColor = '#333'

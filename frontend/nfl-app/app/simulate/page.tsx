@@ -194,9 +194,9 @@ export default function SimulatePage() {
 
           {error && (
             <div style={errorStyle}>
-              <strong>Error:</strong> {error}
+              {/*<strong>Error:</strong> {error}*/}
               <div style={{ marginTop: '8px', fontSize: '14px' }}>
-                Backend server is not online right now.
+                Timeout. Too many people are using the server right now. Try a smaller amount of games.
               </div>
             </div>
           )}

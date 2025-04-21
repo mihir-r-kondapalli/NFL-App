@@ -124,13 +124,12 @@ export default function ScoresChart({ team1, team2, team1Scores, team2Scores }: 
       <div style={{ 
         display: 'flex', 
         justifyContent: 'center',
-        marginTop: '10px',
         fontSize: '14px',
         color: '#aaa'
       }}>
         <span>
-          Points above the diagonal line: {team1} wins | 
-          Points below the diagonal line: {team2} wins | 
+          Points above the line: {team1} wins | 
+          Points below the line: {team2} wins | 
           Points on the line: Ties
         </span>
       </div>
