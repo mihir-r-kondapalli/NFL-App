@@ -186,6 +186,7 @@ async function advanceGameState(state: GameState, choice_val: PlayChoice): Promi
           newState.score1 += 6
         }
         newState.message = "PASS INTERCEPTED! Returned for a TOUCHDOWN!"
+        newState.possession *= -1
         newState.drive = false
         fnum = 2
       }
@@ -212,7 +213,8 @@ async function advanceGameState(state: GameState, choice_val: PlayChoice): Promi
         } else {
           newState.score1 += 6
         }
-        newState.message = "Fumble! Return for a TOUCHDOWN!"
+        newState.message = "Fumble! Returned for a TOUCHDOWN!"
+        newState.possession *= -1
         newState.drive = false
         fnum = 2
       }
