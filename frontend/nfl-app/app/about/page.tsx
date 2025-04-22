@@ -11,7 +11,7 @@ export default function About() {
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
-      backgroundColor: '#cccccc',
+      backgroundColor: '#fff',
     }}>
       <TopBar />
 
@@ -80,7 +80,23 @@ export default function About() {
             NFL EP Metric league-wide while also providing accurate team-by-team offense and defense metrics.
           </p>
 
-          <h2 style={{ fontSize: '2rem', color: '#00aa55', marginTop: '30px' }}> Overall </h2>
+          <h3 style={{ fontSize: '1.25rem', color: '#00aa55', marginTop: '30px' }}> Pytorch </h3>
+          <p style={{ fontSize: '18px', color: wordColor, lineHeight: '1.6', marginTop: '16px' }}>
+            After building the game engine, I trained a pytorch reinforcement learning agent that is included in the
+            <strong> Play</strong> section. Playing on league average play data, it wins about 55% of the time against
+            league average teams.
+          </p>
+
+          <h3 style={{ fontSize: '1.25rem', color: '#00aa55', marginBottom: '20px', marginTop: '30px'}}>
+            Powered By Modern Infrastructure
+          </h3>
+          <p style={{ fontSize: '18px', color: wordColor, lineHeight: '1.6'}}>
+            4th & Sim runs on a reliable and scalable stack built with <strong>AWS</strong> (FastAPI) for computing and cloud processing,
+            <strong> Supabase</strong> (PostgreSQL) for real-time database management, and <strong>Vercel</strong> (React NextJS)
+            for fast and seamless deployment.
+          </p>
+
+          <h2 style={{ fontSize: '2.5rem', color: '#00aa55', marginTop: '40px' }}> Overall </h2>
           <p style={{ fontSize: '18px', color: wordColor, lineHeight: '1.6', marginTop: '16px' }}>
             The 4th & Sim football engine presents a new way of analyzing sports as a whole, where we can break down the sport by modeling it from the ground
             up rather from the top down.

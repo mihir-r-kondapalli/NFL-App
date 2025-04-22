@@ -10,7 +10,7 @@ export default function Contact() {
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
-      backgroundColor: '#cccccc',
+      backgroundColor: '#fff',
     }}>
       <TopBar />
 
@@ -87,6 +87,9 @@ export default function Contact() {
             Get in Touch
           </h2>
           <ul style={{ listStyle: 'none', padding: 0, fontSize: '18px', color: wordColor, marginTop: '12px' }}>
+            <li style={{ marginBottom: '10px' }}>
+              Website: <a href="https://www.mihirkondapalli.space" style={linkStyle}>mihirkondapalli.space</a>
+            </li>
             <li style={{ marginBottom: '10px' }}>
               Email: <a href="mailto:mihir.kondapalli@gmail.com" style={linkStyle}>mihir.kondapalli@gmail.com</a>
             </li>

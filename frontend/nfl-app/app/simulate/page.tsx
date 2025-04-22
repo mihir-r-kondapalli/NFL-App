@@ -277,7 +277,7 @@ export default function SimulatePage() {
               </div>
             </div>
 
-            {numGames > 1 && (
+            {
               <>
                 <div style={{ marginTop: '30px' }}>
                   <h3 style={{ color: '#ffffff', marginBottom: '15px' }}>Game Results</h3>
@@ -348,7 +348,7 @@ export default function SimulatePage() {
                   />
                 </div>
               </>
-            )}
+            }
           </div>
         )}
       </div>
