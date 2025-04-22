@@ -335,7 +335,7 @@ export default function CoachProbsPage() {
                 fontWeight: '500',
                 fontSize: '18px'
               }}>
-                Select filters and click "Apply Filters" to load data
+                Select filters and click "Update Chart" to load data
               </p>
             </div>
           ) : loading ? (
