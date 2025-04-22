@@ -259,7 +259,7 @@ export default function CoachProbsPage() {
           color: theme.colors.accent.primary,
           fontWeight: 'bold'
         }}>
-          Coach Decision Probabilities
+          Strategy
         </h1>
         <p style={{ 
           fontSize: '16px', 
