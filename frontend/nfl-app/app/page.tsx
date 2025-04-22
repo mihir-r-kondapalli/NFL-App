@@ -34,7 +34,7 @@ export default function Home() {
           <h1 style={{ fontSize: '2.5rem', marginBottom: '10px', color: '#007000' }}>
             Welcome to 4th & Sim!
           </h1>
-          <p style={{ fontSize: '18px', color: '#999' }}>
+          <p style={{ fontSize: '18px', color: '#777' }}>
             Run full simulations, call plays, and rank teams. Built for strategy lovers and stat-heads alike.
           </p>
         </div>
@@ -57,13 +57,7 @@ export default function Home() {
               It blends real NFL data with interactive game flow, allowing users to simulate drives, visualize field position value, and explore
               strategic outcomes. TLDR? It's about <strong>accuracy</strong> and <strong>flexibility</strong>.
               </p>
-              <p style={{marginBottom: '10px'}}> From team rankings to real-time strategy, <strong>4th & Sim</strong> offers a full suite of tools for NFL analysis and simulation. You can rank
-              every team’s offense and defense, track how they’ve evolved over the years, and visualize their expected points across every field position. Dive into
-              coaching decisions and evaluate strategies under different scenarios. Simulate up to 50 games between any two teams—or take control yourself and play
-              full games against other teams and an <strong>AI</strong> model. Whether you're exploring timelines, testing game theory, or just playing around, there's always more to
-              discover. Hit the <strong>Deep Dive</strong> to learn how it works or <strong>About Me</strong> to get in touch.
-              </p>
-              <p>
+              <p style={{marginTop: '30px'}}>
                 These NFL rankings below are powered by unbiased deep tree search algorithms written in C++ which use play by play data
                 from <strong>nflfastR</strong>, allowing precise and powerful measurements of offensive and defensive performance.
                 And this is just the beginning of what the engine can do.
@@ -89,7 +83,20 @@ export default function Home() {
           />
         </div>
 
-        <Rankings year={2024} offenseValues={offenseValues2024} defenseValues={defenseValues2024}/>
+        <div style={{marginTop: '-40px'}}>
+          <Rankings year={2024} offenseValues={offenseValues2024} defenseValues={defenseValues2024}/>
+        </div>
+
+        <div style={{ flex: '1 1 400px', minWidth: '300px' }}>
+          <div style={{ fontSize: '18px', lineHeight: '1.7', color: wordColor }}>
+            <p style={{marginTop: '15px'}}> From team rankings to real-time strategy, <strong>4th & Sim</strong> offers a full suite of tools for NFL analysis and simulation. You can rank
+              every team’s offense and defense, track how they’ve evolved over the years, and visualize their expected points across every field position. Dive into
+              coaching decisions and evaluate strategies under different scenarios. Simulate up to 50 games between any two teams—or take control yourself and play
+              full games against other teams and an <strong>AI</strong> model. Whether you're exploring timelines, testing game theory, or just playing around, there's always more to
+              discover. Hit the <strong>Deep Dive</strong> to learn how it works or <strong>About Me</strong> to get in touch.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )
