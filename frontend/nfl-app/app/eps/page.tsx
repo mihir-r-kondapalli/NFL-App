@@ -104,7 +104,7 @@ export default function EPSPage() {
   useEffect(() => {
     // Set teams from hardcoded list
     setTeams(allTeams);
-    setSelectedTeam(allTeams[0]);
+    setSelectedTeam('DET');
     
     // Set years from hardcoded options
     setYears(yearOptions);

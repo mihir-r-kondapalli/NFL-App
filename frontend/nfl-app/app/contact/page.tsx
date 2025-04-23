@@ -93,9 +93,6 @@ export default function Contact() {
             <li style={{ marginBottom: '10px' }}>
               Email: <a href="mailto:mihir.kondapalli@gmail.com" style={linkStyle}>mihir.kondapalli@gmail.com</a>
             </li>
-            <li style={{ marginBottom: '10px' }}>
-              LinkedIn: <a href="https://www.linkedin.com/in/mihir-kondapalli/" target="_blank" rel="noreferrer" style={linkStyle}>linkedin.com/in/mihirkondapalli</a>
-            </li>
             <li>
               GitHub: <a href="https://github.com/mihir-r-kondapalli" target="_blank" rel="noreferrer" style={linkStyle}>github.com/mihir-r-kondapalli</a>
             </li>
