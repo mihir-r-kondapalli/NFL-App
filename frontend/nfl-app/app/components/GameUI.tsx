@@ -31,7 +31,7 @@ export default function GameUI() {
 
   const [score1, setScore1] = useState(0)
   const [score2, setScore2] = useState(0)
-  const [time, setTime] = useState(130)
+  const [time, setTime] = useState(150)
   const [down, setDown] = useState(0)
   const [distance, setDistance] = useState(-1)
   const [loc, setLoc] = useState(50)
@@ -51,7 +51,7 @@ export default function GameUI() {
   const resetGameState = () => {
     setScore1(0);
     setScore2(0);
-    setTime(130);
+    setTime(150);
     setDown(0);
     setDistance(-1);
     setLoc(50);
