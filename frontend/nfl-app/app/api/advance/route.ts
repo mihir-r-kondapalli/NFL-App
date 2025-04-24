@@ -327,6 +327,7 @@ async function advanceGameState(state: GameState, choice_val: PlayChoice): Promi
       }
       newState.message = result + " TOUCHDOWN!"
       newState.drive = false
+      newState.possession *= -1
       fnum = 2
     }
     else{
