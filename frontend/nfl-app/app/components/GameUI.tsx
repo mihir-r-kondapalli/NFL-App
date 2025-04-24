@@ -40,7 +40,7 @@ export default function GameUI() {
   const [coach1, setCoach1] = useState('Human')
   const [coach2, setCoach2] = useState('KC')
   const [target, setTarget] = useState(50)
-  const [possession, setPossession] = useState(1)
+  const [possession, setPossession] = useState(Math.floor(Math.random()*2) == 0 ? -1 : 1)
   const [drive, setDrive] = useState(false)
   const [ep1, setEp1] = useState(0)
   const [ep2, setEp2] = useState(0)
@@ -56,7 +56,7 @@ export default function GameUI() {
     setDistance(-1);
     setLoc(50);
     setTarget(50);
-    setPossession(1);
+    setPossession(Math.floor(Math.random()*2) == 0 ? -1 : 1);
     setDrive(false);
     setEp1(0);
     setEp2(0);

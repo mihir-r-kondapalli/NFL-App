@@ -6,7 +6,7 @@ import sys
 
 import numpy as np
 
-num_plays = 130  # Set num_plays as needed
+num_plays = 150  # Set num_plays as needed
 
 import os
 from Agent import StrategyAgent
@@ -88,7 +88,7 @@ class Matchup:
             self.pd1 = Play_Data(("nfl_cdf_data", "team-data/"+self.name2+"/cdf_data_def"), "punt_net_yards.json")
             self.pd2 = Play_Data(("team-data/"+self.name2+"/cdf_data"), "punt_net_yards.json")
         elif (self.name2 == "NFL" or self.name2 == "AI"):
-            self.pd1 = Play_Data(("team-data/"+self.name1+"/cdf_data"), "punt_net_yards.json")
+            self.pd1 = Play_Data(("team-data/"+self.namepr1+"/cdf_data"), "punt_net_yards.json")
             self.pd2 = Play_Data(("nfl_cdf_data", "team-data/"+self.name1+"/cdf_data_def"), "punt_net_yards.json")
         else:
             self.pd1 = Play_Data(("team-data/"+self.name1+"/cdf_data", "team-data/"+self.name2+"/cdf_data_def"), "punt_net_yards.json")
