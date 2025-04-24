@@ -195,7 +195,6 @@ async function advanceGameState(state: GameState, choice_val: PlayChoice): Promi
         newState.message = "PASS INTERCEPTED! TOUCHBACK!"
         newState.drive = false
         newState.possession *= -1
-        fnum = 2
       }
       else{
         newState.message = `PASS INTERCEPTED! Returned for ${gain + 2100} yards!`
