@@ -22,6 +22,7 @@ export default function EPSPage() {
   const [teams, setTeams] = useState<string[]>([])
   const [years, setYears] = useState<number[]>([])
   const [downs, setDowns] = useState<number[]>([1, 2, 3, 4])
+  const [rollingAvgWindow, setRollingAvgWindow] = useState<number>(1)
   
   // Team-year-defense triplets for analysis
   const [teamPairs, setTeamPairs] = useState<{team: string, year: number, isDefense: boolean}[]>([])
@@ -203,6 +204,26 @@ export default function EPSPage() {
     }
   };
 
+  const applyRollingAverage = (data: any[], keys: string[], window: number) => {
+    if (window <= 1) return data;
+
+    const smoothed: any[] = [];
+
+    for (let i = 0; i < data.length; i++) {
+      const windowSlice = data.slice(Math.max(0, i - window + 1), i + 1);
+      const averagedPoint: any = { yardline: data[i].yardline };
+
+      keys.forEach((key) => {
+        const values = windowSlice.map(d => d[key]).filter(v => typeof v === 'number');
+        averagedPoint[key] = values.length > 0 ? values.reduce((a, b) => a + b, 0) / values.length : undefined;
+      });
+
+      smoothed.push(averagedPoint);
+    }
+
+    return smoothed;
+  };
+
   // Process data for the chart
   const processChartData = (teamDataArray: any[]) => {
     if (teamDataArray.length === 0) {
@@ -210,17 +231,10 @@ export default function EPSPage() {
       setLoading(false);
       return;
     }
-    
-    // Create an object to hold the merged data
-    // Keys will be yardlines, values will be objects with team-year:ep mappings
+
     const mergedData: Record<number, Record<string, number>> = {};
-    
-    // Populate all possible yardlines (0 to 100)
-    for (let i = 0; i <= 100; i++) {
-      mergedData[i] = {};
-    }
-    
-    // Merge data from all teams and years
+    for (let i = 0; i <= 100; i++) mergedData[i] = {};
+
     teamDataArray.forEach(({ displayName, data }) => {
       data.forEach((item: any) => {
         if (mergedData[item.yardline]) {
@@ -228,19 +242,18 @@ export default function EPSPage() {
         }
       });
     });
-    
-    // Convert the merged data to the array format needed by Recharts
-    const chartData = Object.entries(mergedData).map(([yardline, values]) => {
-      return {
-        yardline: parseInt(yardline),
-        ...values
-      };
-    });
-    
-    // Sort by yardline
-    chartData.sort((a, b) => a.yardline - b.yardline);
-    
-    setChartData(chartData);
+
+    const baseChartData = Object.entries(mergedData).map(([yardline, values]) => ({
+      yardline: parseInt(yardline),
+      ...values,
+    }));
+
+    baseChartData.sort((a, b) => a.yardline - b.yardline);
+
+    const allKeys = teamDataArray.map(t => t.displayName);
+    const smoothedData = applyRollingAverage(baseChartData, allKeys, rollingAvgWindow);
+
+    setChartData(smoothedData);
     setLoading(false);
   };
 
@@ -581,7 +594,29 @@ export default function EPSPage() {
                   </div>
                 )}
               </div>
-              
+
+              <div style={formGroupStyle}>
+                <label style={{...labelStyle, color: theme.colors.text.secondary}}>
+                  Rolling Average Window:
+                </label>
+                <input
+                  type="range"
+                  min={1}
+                  max={10}
+                  value={rollingAvgWindow}
+                  onChange={(e) => setRollingAvgWindow(Number(e.target.value))}
+                  style={{ width: '100%' }}
+                />
+                <div style={{
+                  marginTop: '5px',
+                  fontSize: '14px',
+                  color: theme.colors.text.secondary,
+                  fontStyle: 'italic'
+                }}>
+                  Smoothing window: {rollingAvgWindow} yardlines
+                </div>
+              </div>
+
               <div style={{ marginTop: '20px', textAlign: 'center' }}>
                 <Button 
                   label={loading ? "Loading Data..." : "Update Chart"} 
