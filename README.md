@@ -37,8 +37,8 @@ This project provides:
 **Agent/** - This directory is where the reinforcement learning agent is trained. \
 **leage_data/** - The league wide data is retrieved here. Search tree drive simulations occur here to determine NFL EP vs field position. \
 **team_data/** - Team by Team EP calculations occur here, both for defense and offense. \
-**frontend/** - Frontend for the 4th & Sim app.
-**backend/** - Backend for the 4th & Sim app.
+**frontend/** - Frontend for the 4th & Sim app. \
+**backend/** - Backend for the 4th & Sim app. \
 **TextSim/** - This is where Agents/Humans play against each other in the console. MatchupSim.py simulates large numbers of games and ObjTextPlayer.py provides an interactive game. \
 compare_eps.ipynb - This is where the teams are ranked by their EP ranges.
 
