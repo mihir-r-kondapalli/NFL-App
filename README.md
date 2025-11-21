@@ -50,9 +50,7 @@ compare_eps.ipynb - This is where the teams are ranked by their EP ranges.
 3. Train AI agents to develop NFL game strategies.
 4. Offer a fun and educational football game environment for testing strategies.
 
-Acknowledgments
-NFL play-by-play data provided by nflfastR
-Neural agent inspired by actor-critic RL methods
-EP simulation structure inspired by recursive dynamic programming search trees.
+## 5. Acknowledgments
+NFL play-by-play data provided by nflfastR \
 Built by @mihir-r-kondapalli
 
