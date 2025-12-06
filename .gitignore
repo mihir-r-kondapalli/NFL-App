@@ -12,3 +12,6 @@ backend/team-data2024/
 backend/nfl_eps/
 backend/nfl_decision_data/
 backend/nfl_cdf_data/
+.DS_Store
+frontend/.DS_Store
+team_data/.DS_Store
