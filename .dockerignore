@@ -1,0 +1,7 @@
+.git
+.venv
+**/node_modules
+**/.next
+data
+.env*
+research

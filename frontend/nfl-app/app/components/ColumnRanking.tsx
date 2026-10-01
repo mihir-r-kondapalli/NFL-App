@@ -3,19 +3,15 @@
 import { teamColors } from "../data/team_colors"
 
 type Props = {
+  teamOrder: string[]
   year: number
   offenseValues: number[]
   defenseValues: number[]
 }
 
-const teamOrder = [
-  'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
-  'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC',
-  'LAR', 'LAC', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG',
-  'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WAS',
-]
 
-export default function Rankings({ year, offenseValues, defenseValues }: Props) {
+
+export default function Rankings({ teamOrder, year, offenseValues, defenseValues }: Props) {
   const offenseRanked = teamOrder.map((team, i) => ({ team, value: offenseValues[i] }))
   const defenseRanked = teamOrder.map((team, i) => ({ team, value: defenseValues[i] }))
   const totalRanked = teamOrder.map((team, i) => ({
@@ -79,7 +75,7 @@ return (
     </div>
     </div>
 )
-}  
+}
 
 const columnLayout = {
     display: 'flex',

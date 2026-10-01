@@ -72,25 +72,25 @@ const CoachProbsFilters: React.FC<CoachProbsFiltersProps> = ({
 
   return (
     <div>
-      <h2 style={{ 
-        color: theme.colors.text.primary, 
+      <h2 style={{
+        color: theme.colors.text.primary,
         marginBottom: '20px',
         fontWeight: 'bold'
       }}>
         Filters
       </h2>
-      
+
       <div style={formContainerStyle}>
         <div style={formColumnStyle}>
           <div style={formGroupStyle}>
             <label style={{...labelStyle, color: theme.colors.text.secondary}}>
               Select Team:
             </label>
-            <select 
-              value={filterState.selectedTeam} 
+            <select
+              value={filterState.selectedTeam}
               onChange={(e) => setFilterState({ selectedTeam: e.target.value })}
               style={{
-                ...selectStyle, 
+                ...selectStyle,
                 backgroundColor: theme.colors.accent.primary,
                 color: theme.colors.button.text
               }}
@@ -108,16 +108,17 @@ const CoachProbsFilters: React.FC<CoachProbsFiltersProps> = ({
             <label style={{...labelStyle, color: theme.colors.text.secondary}}>
               Select Year:
             </label>
-            <select 
-              value={filterState.selectedYear} 
+            <select
+              value={filterState.selectedYear}
               onChange={(e) => setFilterState({ selectedYear: Number(e.target.value) })}
               style={{
-                ...selectStyle, 
+                ...selectStyle,
                 backgroundColor: theme.colors.accent.primary,
                 color: theme.colors.button.text
               }}
             >
               <option value="" disabled>Year</option>
+              <option value={0} disabled>Select a season</option>
               {yearOptions.map(year => (
                 <option key={year} value={year}>{year}</option>
               ))}
@@ -146,11 +147,11 @@ const CoachProbsFilters: React.FC<CoachProbsFiltersProps> = ({
         <div style={formColumnStyle}>
           <div style={formGroupStyle}>
             <label style={{...labelStyle, color: theme.colors.text.secondary}}>Down:</label>
-            <select 
-              value={filterState.selectedDown} 
+            <select
+              value={filterState.selectedDown}
               onChange={(e) => {
                 const down = Number(e.target.value);
-                setFilterState({ 
+                setFilterState({
                   selectedDown: down,
                   selectedDistance: getValidDistance(down, filterState.selectedDistance)
                 });
@@ -172,7 +173,7 @@ const CoachProbsFilters: React.FC<CoachProbsFiltersProps> = ({
             <input
               type="number"
               value={filterState.selectedDistance}
-              onChange={(e) => setFilterState({ 
+              onChange={(e) => setFilterState({
                 selectedDistance: getValidDistance(filterState.selectedDown, Number(e.target.value))
               })}
               style={{
@@ -184,14 +185,14 @@ const CoachProbsFilters: React.FC<CoachProbsFiltersProps> = ({
               max={20}
             />
           </div>
-          
+
           <div style={formGroupStyle}>
             <label style={{...labelStyle, color: theme.colors.text.secondary}}>Yardline Range:</label>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               <input
                 type="number"
                 value={filterState.yardlineRange.start}
-                onChange={(e) => setFilterState({ 
+                onChange={(e) => setFilterState({
                   yardlineRange: {
                     ...filterState.yardlineRange,
                     start: Number(e.target.value)
@@ -210,7 +211,7 @@ const CoachProbsFilters: React.FC<CoachProbsFiltersProps> = ({
               <input
                 type="number"
                 value={filterState.yardlineRange.end}
-                onChange={(e) => setFilterState({ 
+                onChange={(e) => setFilterState({
                   yardlineRange: {
                     ...filterState.yardlineRange,
                     end: Number(e.target.value)
@@ -229,7 +230,7 @@ const CoachProbsFilters: React.FC<CoachProbsFiltersProps> = ({
           </div>
         </div>
       </div>
-      
+
       {/* Preset Scenarios */}
       <div style={{ marginTop: '20px', marginBottom: '25px' }}>
         <label style={{...labelStyle, color: theme.colors.text.secondary, marginBottom: '10px'}}>
@@ -256,15 +257,15 @@ const CoachProbsFilters: React.FC<CoachProbsFiltersProps> = ({
           ))}
         </div>
       </div>
-      
+
       {/* View Options */}
       <div style={{ marginTop: '20px', marginBottom: '25px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px' }}>
           <div>
-            <label style={{ 
-              marginRight: '10px', 
-              fontSize: '14px', 
-              color: theme.colors.text.secondary 
+            <label style={{
+              marginRight: '10px',
+              fontSize: '14px',
+              color: theme.colors.text.secondary
             }}>
               View Mode:
             </label>
@@ -284,7 +285,7 @@ const CoachProbsFilters: React.FC<CoachProbsFiltersProps> = ({
               {viewMode === 'chart' ? 'Switch to Table View' : 'Switch to Chart View'}
             </button>
           </div>
-          
+
           <div>
             <label style={{
               display: 'flex',
@@ -302,10 +303,10 @@ const CoachProbsFilters: React.FC<CoachProbsFiltersProps> = ({
               Highlight Optimal Play Choices
             </label>
           </div>
-          
-          <Button 
-            label={loading ? "Loading Data..." : "Update Chart"} 
-            onClick={fetchData} 
+
+          <Button
+            label={loading ? "Loading Data..." : "Update Chart"}
+            onClick={fetchData}
           />
         </div>
       </div>

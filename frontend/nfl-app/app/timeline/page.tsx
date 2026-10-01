@@ -8,14 +8,7 @@ import Select from 'react-select'
 import React from 'react'
 import { teamColors } from '../data/team_colors'
 import { teamNames } from '../data/team_names'
-import {
-  offenseValues2019, defenseValues2019,
-  offenseValues2020, defenseValues2020,
-  offenseValues2021, defenseValues2021,
-  offenseValues2022, defenseValues2022,
-  offenseValues2023, defenseValues2023,
-  offenseValues2024, defenseValues2024
-} from '../data/aep_values'
+import { useDataset, DatasetStatus } from '../components/DatasetProvider'
 
 const teamOrder = [
   'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
@@ -23,26 +16,6 @@ const teamOrder = [
   'LAR', 'LAC', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG',
   'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WAS',
 ]
-
-const years = ['2019', '2020', '2021', '2022', '2023', '2024']
-
-const offenseMap: Record<string, number[]> = {
-  '2019': offenseValues2019,
-  '2020': offenseValues2020,
-  '2021': offenseValues2021,
-  '2022': offenseValues2022,
-  '2023': offenseValues2023,
-  '2024': offenseValues2024,
-}
-
-const defenseMap: Record<string, number[]> = {
-  '2019': defenseValues2019,
-  '2020': defenseValues2020,
-  '2021': defenseValues2021,
-  '2022': defenseValues2022,
-  '2023': defenseValues2023,
-  '2024': defenseValues2024,
-}
 
 const metricOptions = [
   { label: 'Offense', value: 'offense' },
@@ -97,30 +70,30 @@ const theme = {
 const adjustColor = (color: string, percent: number): string => {
   // Remove the # if present
   let hex = color.replace('#', '');
-  
+
   // Convert 3-digit hex to 6-digit
   if (hex.length === 3) {
     hex = hex.split('').map(char => char + char).join('');
   }
-  
+
   // Parse the hex values
   let r = parseInt(hex.substring(0, 2), 16);
   let g = parseInt(hex.substring(2, 4), 16);
   let b = parseInt(hex.substring(4, 6), 16);
-  
+
   // Adjust by percentage
   r = Math.floor(r * (100 + percent) / 100);
   g = Math.floor(g * (100 + percent) / 100);
   b = Math.floor(b * (100 + percent) / 100);
-  
+
   // Ensure values are within 0-255
   r = Math.min(255, Math.max(0, r));
   g = Math.min(255, Math.max(0, g));
   b = Math.min(255, Math.max(0, b));
-  
+
   // Convert back to hex
   const newHex = ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0');
-  
+
   return `#${newHex}`;
 };
 
@@ -139,9 +112,9 @@ const Card: React.FC<{
     marginBottom: '30px'
   }}>
     {title && (
-      <h2 style={{ 
-        fontSize: '1.5rem', 
-        color: theme.colors.text.primary, 
+      <h2 style={{
+        fontSize: '1.5rem',
+        color: theme.colors.text.primary,
         marginBottom: subtitle ? '5px' : '20px',
         fontWeight: 'bold'
       }}>
@@ -149,9 +122,9 @@ const Card: React.FC<{
       </h2>
     )}
     {subtitle && (
-      <p style={{ 
-        color: theme.colors.text.secondary, 
-        marginBottom: '20px', 
+      <p style={{
+        color: theme.colors.text.secondary,
+        marginBottom: '20px',
         fontSize: '16px',
         fontWeight: '500'
       }}>
@@ -170,10 +143,10 @@ const FormGroup: React.FC<{
 }> = ({ label, children, helperText }) => (
   <div style={{ marginBottom: '20px' }}>
     {label && (
-      <label style={{ 
-        display: 'block', 
-        marginBottom: '6px', 
-        fontSize: '14px', 
+      <label style={{
+        display: 'block',
+        marginBottom: '6px',
+        fontSize: '14px',
         fontWeight: '500',
         color: theme.colors.text.secondary
       }}>
@@ -182,10 +155,10 @@ const FormGroup: React.FC<{
     )}
     {children}
     {helperText && (
-      <div style={{ 
-        marginTop: '5px', 
-        fontSize: '14px', 
-        color: theme.colors.text.secondary, 
+      <div style={{
+        marginTop: '5px',
+        fontSize: '14px',
+        color: theme.colors.text.secondary,
         fontStyle: 'italic'
       }}>
         {helperText}
@@ -216,7 +189,7 @@ const CustomTooltip: React.FC<{
         {payload.map((entry, index) => {
           const team = entry.name.split(' ')[0];
           return (
-            <p key={index} style={{ 
+            <p key={index} style={{
               margin: index === payload.length - 1 ? '0' : '0 0 5px 0',
               color: entry.color,
               fontWeight: '500'
@@ -239,54 +212,62 @@ export default function TimelinePage() {
   const [statType, setStatType] = useState<'offense' | 'defense' | 'total'>('total')
   const [viewType, setViewType] = useState<'value' | 'rank'>('value')
 
+  const dataset = useDataset()
+  const years = Object.keys(dataset.rankings).sort()
+  const offenseMap = Object.fromEntries(years.map(year => [year, teamOrder.map(team => dataset.rankings[year][team]?.offense)]))
+  const defenseMap = Object.fromEntries(years.map(year => [year, teamOrder.map(team => dataset.rankings[year][team]?.defense)]))
+
   const chartData = years.map(year => {
     const entry: Record<string, any> = { year }
-  
+
     const values = teamOrder.map((team, i) => {
       const off = offenseMap[year][i]
       const def = defenseMap[year][i]
-      const total = parseFloat((off - def).toFixed(2))
-  
+      const total = off === undefined || def === undefined ? undefined : parseFloat((off - def).toFixed(2))
+
       return {
         team,
-        value: statType === 'offense' ? off : statType === 'defense' ? def : total
+        value: off === undefined || def === undefined ? undefined : statType === 'offense' ? off : statType === 'defense' ? def : total
       }
     })
-  
-    const ranked = [...values].sort((a, b) =>
+
+    const ranked = values.filter((v): v is { team: string; value: number } => v.value !== undefined).sort((a, b) =>
         statType === 'defense' ? a.value - b.value : b.value - a.value
-    )      
+    )
     const rankMap = new Map(ranked.map((v, i) => [v.team, i + 1]))
-  
+
     selectedTeams.forEach(({ value: team }) => {
       const idx = teamOrder.indexOf(team)
-      const val = values.find(v => v.team === team)?.value ?? 0
+      const val = values.find(v => v.team === team)?.value ?? null
       entry[team] = viewType === 'value' ? val : rankMap.get(team)
     })
-  
+
     return entry
   })
 
   // Find min and max values for better Y-axis range
-  const allChartValues = chartData.flatMap(point => 
+  const allChartValues = chartData.flatMap(point =>
     Object.entries(point)
       .filter(([key]) => key !== 'year')
-      .map(([_, value]) => value as number)
+      .map(([_, value]) => value)
+      .filter((value): value is number => typeof value === "number" && Number.isFinite(value))
   );
-  
+
   const minVal = allChartValues.length > 0 && viewType === 'value' ? Math.min(...allChartValues) : 0;
-  const maxVal = allChartValues.length > 0 ? 
-    (viewType === 'value' ? Math.max(...allChartValues) : 32) : 
+  const maxVal = allChartValues.length > 0 ?
+    (viewType === 'value' ? Math.max(...allChartValues) : 32) :
     (viewType === 'value' ? 10 : 32);
-  
+
   // Round to nearest integer and add padding for value view
   const yAxisMin = viewType === 'value' ? Math.floor(minVal) - 1 : 1;
   const yAxisMax = viewType === 'value' ? Math.ceil(maxVal) + 1 : 32;
 
+  if (dataset.loading || dataset.error || !dataset.seasons.length) return <><TopBar /><DatasetStatus /></>
+
   return (
-    <div style={{ 
-      fontFamily: 'monospace', 
-      color: theme.colors.text.primary, 
+    <div style={{
+      fontFamily: 'monospace',
+      color: theme.colors.text.primary,
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
@@ -301,20 +282,20 @@ export default function TimelinePage() {
         margin: '0 auto',
         padding: '40px 24px',
       }}>
-        <h1 style={{ 
-          fontSize: '2.5rem', 
-          marginBottom: '20px', 
+        <h1 style={{
+          fontSize: '2.5rem',
+          marginBottom: '20px',
           color: theme.colors.accent.primary,
           fontWeight: 'bold'
         }}>
           Team Performance Timelines
         </h1>
-        <p style={{ 
-          fontSize: '16px', 
-          color: theme.colors.text.secondary, 
-          marginBottom: '30px' 
+        <p style={{
+          fontSize: '16px',
+          color: theme.colors.text.secondary,
+          marginBottom: '30px'
         }}>
-          Track and compare NFL team performances over multiple seasons (2019-2024).
+          Track and compare NFL team performances over multiple seasons (available seasons).
         </p>
 
         {/* Settings Card */}
@@ -328,8 +309,8 @@ export default function TimelinePage() {
           }}>
             {/* Team selection */}
             <div style={{ flex: '1 1 300px' }}>
-              <FormGroup 
-                label="Select Teams to Compare:" 
+              <FormGroup
+                label="Select Teams to Compare:"
                 helperText={`${selectedTeams.length} team${selectedTeams.length === 1 ? '' : 's'} selected`}
               >
                 <Select
@@ -364,8 +345,8 @@ export default function TimelinePage() {
                     }),
                     option: (base, state) => ({
                       ...base,
-                      backgroundColor: state.isFocused 
-                        ? `${theme.colors.accent.primary}22` 
+                      backgroundColor: state.isFocused
+                        ? `${theme.colors.accent.primary}22`
                         : base.backgroundColor,
                       color: theme.colors.text.primary,
                       padding: '8px 12px',
@@ -379,7 +360,7 @@ export default function TimelinePage() {
                       ...styles,
                       color: teamColors[data.value]?.secondary || '#fff',
                       backgroundColor: teamColors[data.value]?.primary || '#444',
-                      ':hover': { 
+                      ':hover': {
                         backgroundColor: adjustColor(teamColors[data.value]?.primary || '#444', -20),
                         color: teamColors[data.value]?.secondary || '#fff'
                       }
@@ -395,11 +376,11 @@ export default function TimelinePage() {
             </div>
 
             <div style={{ flex: '1 1 300px' }}>
-              <FormGroup 
+              <FormGroup
                 label="Metric:"
                 helperText={
-                  statType === 'offense' 
-                    ? 'Shows offensive performance metrics' 
+                  statType === 'offense'
+                    ? 'Shows offensive performance metrics'
                     : statType === 'defense'
                       ? 'Shows defensive performance metrics'
                       : 'Shows combined team performance (offense - defense)'
@@ -430,8 +411,8 @@ export default function TimelinePage() {
                     }),
                     option: (base, state) => ({
                       ...base,
-                      backgroundColor: state.isFocused 
-                        ? `${theme.colors.accent.primary}22` 
+                      backgroundColor: state.isFocused
+                        ? `${theme.colors.accent.primary}22`
                         : base.backgroundColor,
                       color: theme.colors.text.primary,
                       padding: '8px 12px',
@@ -448,11 +429,11 @@ export default function TimelinePage() {
                 />
               </FormGroup>
 
-              <FormGroup 
+              <FormGroup
                 label="Display:"
                 helperText={
-                  viewType === 'value' 
-                    ? 'Shows actual performance values' 
+                  viewType === 'value'
+                    ? 'Shows actual performance values'
                     : 'Shows team ranking (lower is better)'
                 }
               >
@@ -481,8 +462,8 @@ export default function TimelinePage() {
                     }),
                     option: (base, state) => ({
                       ...base,
-                      backgroundColor: state.isFocused 
-                        ? `${theme.colors.accent.primary}22` 
+                      backgroundColor: state.isFocused
+                        ? `${theme.colors.accent.primary}22`
                         : base.backgroundColor,
                       color: theme.colors.text.primary,
                       padding: '8px 12px',
@@ -503,21 +484,21 @@ export default function TimelinePage() {
         </Card>
 
         {/* Chart Section */}
-        <Card 
-          title={`${statType.charAt(0).toUpperCase() + statType.slice(1)} Timeline`} 
-          subtitle={`Tracking ${viewType === 'value' ? 'performance values' : 'rankings'} from 2019 to 2024`}
+        <Card
+          title={`${statType.charAt(0).toUpperCase() + statType.slice(1)} Timeline`}
+          subtitle={`Tracking ${viewType === 'value' ? 'performance values' : 'rankings'} across available seasons`}
         >
           {selectedTeams.length === 0 ? (
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
               alignItems: 'center',
               height: '400px',
               backgroundColor: theme.colors.background.dark,
               borderRadius: '4px',
               border: `1px solid ${theme.colors.accent.primary}`,
             }}>
-              <p style={{ 
+              <p style={{
                 color: theme.colors.text.secondary,
                 fontWeight: '500',
                 fontSize: '18px'
@@ -528,7 +509,7 @@ export default function TimelinePage() {
           ) : (
             <div style={{ height: '500px', marginTop: '10px' }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart 
+                <LineChart
                   data={chartData}
                   margin={{ top: 20, right: 30, left: 10, bottom: 30 }}
                 >
@@ -540,9 +521,9 @@ export default function TimelinePage() {
                     axisLine={{ stroke: theme.colors.chart.axis }}
                     tickLine={{ stroke: theme.colors.chart.axis }}
                     padding={{ left: 20, right: 20 }}
-                    label={{ 
-                      value: 'Year', 
-                      position: 'bottom', 
+                    label={{
+                      value: 'Year',
+                      position: 'bottom',
                       offset: 0,
                       fill: theme.colors.text.primary
                     }}
@@ -563,8 +544,8 @@ export default function TimelinePage() {
                     }}
                   />
                   <Tooltip content={<CustomTooltip viewType={viewType} />} />
-                  <Legend 
-                    verticalAlign="top" 
+                  <Legend
+                    verticalAlign="top"
                     wrapperStyle={{ paddingBottom: '10px' }}
                   />
 
@@ -594,28 +575,28 @@ export default function TimelinePage() {
             </div>
           )}
 
-          <div style={{ 
-            marginTop: '15px', 
-            display: 'flex', 
+          <div style={{
+            marginTop: '15px',
+            display: 'flex',
             justifyContent: 'center',
             fontSize: '14px',
             color: theme.colors.text.secondary
           }}>
             <div style={{ marginRight: '20px' }}>
-              <span style={{ 
-                display: 'inline-block', 
-                width: '20px', 
-                height: '3px', 
+              <span style={{
+                display: 'inline-block',
+                width: '20px',
+                height: '3px',
                 backgroundColor: theme.colors.accent.primary,
                 marginRight: '5px',
               }}></span>
               Standard Line (Offense/Total)
             </div>
             <div>
-              <span style={{ 
-                display: 'inline-block', 
-                width: '20px', 
-                height: '3px', 
+              <span style={{
+                display: 'inline-block',
+                width: '20px',
+                height: '3px',
                 backgroundImage: 'linear-gradient(to right, #00aa00 4px, transparent 4px, transparent 8px)',
                 backgroundSize: '8px 3px',
                 marginRight: '5px',
@@ -628,28 +609,28 @@ export default function TimelinePage() {
         {/* Description Section */}
         <Card title="About Team Performance Metrics">
           <p style={{ marginBottom: '15px', lineHeight: '1.5' }}>
-            This timeline tracks NFL team performance metrics from 2019 to 2024, allowing you to visualize trends and compare teams over multiple seasons.
+            This timeline tracks NFL team performance metrics across available seasons, allowing you to visualize trends and compare teams over multiple seasons.
           </p>
-          
-          <div style={{ 
-            marginTop: '20px', 
-            padding: '15px', 
-            backgroundColor: theme.colors.background.dark, 
-            borderRadius: '4px', 
-            border: `1px solid ${theme.colors.accent.primary}` 
+
+          <div style={{
+            marginTop: '20px',
+            padding: '15px',
+            backgroundColor: theme.colors.background.dark,
+            borderRadius: '4px',
+            border: `1px solid ${theme.colors.accent.primary}`
           }}>
-            <h3 style={{ 
-              color: theme.colors.text.primary, 
-              marginBottom: '10px', 
-              fontSize: '16px', 
-              fontWeight: 'bold' 
+            <h3 style={{
+              color: theme.colors.text.primary,
+              marginBottom: '10px',
+              fontSize: '16px',
+              fontWeight: 'bold'
             }}>
               Understanding the Metrics
             </h3>
-            <ul style={{ 
-              color: theme.colors.text.secondary, 
-              paddingLeft: '20px', 
-              lineHeight: '1.5' 
+            <ul style={{
+              color: theme.colors.text.secondary,
+              paddingLeft: '20px',
+              lineHeight: '1.5'
             }}>
               <li style={{ marginBottom: '8px' }}>
                 <strong>Offense:</strong> Higher values indicate better offensive performance.
@@ -667,9 +648,9 @@ export default function TimelinePage() {
                 <strong>Rank View:</strong> Shows team rankings (1 is best, 32 is worst).
               </li>
             </ul>
-            <p style={{ 
-              marginTop: '15px', 
-              color: theme.colors.text.secondary 
+            <p style={{
+              marginTop: '15px',
+              color: theme.colors.text.secondary
             }}>
               The <strong>4th & Sim</strong> model calculates these metrics based on actual play distributions and dynamic gameplay algorithms, offering more accurate team-specific insights than traditional NFL metrics.
             </p>

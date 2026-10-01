@@ -3,10 +3,15 @@
 import TopBar from './components/TopBar'
 import { useRouter } from 'next/navigation'
 import Rankings from './components/ColumnRanking'
-import { offenseValues2024, defenseValues2024 } from './data/aep_values'
+import { useState } from 'react'
+import { useDataset, DatasetStatus } from './components/DatasetProvider'
 
 export default function Home() {
   const router = useRouter()
+  const dataset = useDataset()
+  const [year, setYear] = useState('')
+  const values = dataset.rankings[year] || {}
+  const teamOrder = Object.keys(values)
 
   return (
     <div style={{
@@ -84,7 +89,16 @@ export default function Home() {
         </div>
 
         <div style={{marginTop: '-40px'}}>
-          <Rankings year={2024} offenseValues={offenseValues2024} defenseValues={defenseValues2024}/>
+          <div>
+          <select aria-label="Rankings season" value={year} onChange={e => setYear(e.target.value)}>
+            <option value="" disabled>Select a season</option>
+            {dataset.yearOptions.map(year => <option key={year} value={year}>{year}</option>)}
+          </select>
+          {dataset.loading || dataset.error || !dataset.seasons.length ? <DatasetStatus /> : year &&
+            <Rankings year={Number(year)} teamOrder={teamOrder}
+              offenseValues={teamOrder.map(team => values[team].offense)}
+              defenseValues={teamOrder.map(team => values[team].defense)} />}
+        </div>
         </div>
 
         <div style={{ flex: '1 1 400px', minWidth: '300px' }}>

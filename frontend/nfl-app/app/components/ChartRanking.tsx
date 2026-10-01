@@ -5,19 +5,15 @@ import { teamColors } from '../data/team_colors'
 import { off } from 'process'
 
 type Props = {
+  teamOrder: string[]
   year: number
   offenseValues: number[]
   defenseValues: number[]
 }
 
-const teamOrder = [
-  'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE',
-  'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC',
-  'LAR', 'LAC', 'LV', 'MIA', 'MIN', 'NE', 'NO', 'NYG',
-  'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WAS',
-]
 
-export default function ChartRankings({ year, offenseValues, defenseValues }: Props) {
+
+export default function ChartRankings({ teamOrder, year, offenseValues, defenseValues }: Props) {
   const data = teamOrder.map((team, i) => ({
     team,
     offense: offenseValues[i],
@@ -38,7 +34,7 @@ export default function ChartRankings({ year, offenseValues, defenseValues }: Pr
       />
     )
   }
-  
+
 
   // Determine bounds for chart
   const avgOffense = offenseValues.reduce((a, b) => a + b, 0) / offenseValues.length

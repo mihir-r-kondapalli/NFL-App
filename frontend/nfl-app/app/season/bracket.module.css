@@ -1,0 +1,12 @@
+.section > p { font-size: 12px; line-height: 1.7; color: #b5cbbb; margin: 8px 0 20px; }
+.scroll { overflow-x: auto; border: 1px solid #35503e; border-radius: 14px; background: #0b1d13; padding: 24px; }
+.scroll:focus-visible { outline: 3px solid #a4e8ac; outline-offset: 3px; }
+.bracket { position: relative; }
+.afc, .nfc { position: absolute; top: 0; font-size: 22px; font-weight: 800; letter-spacing: 3px; color: #b5edbe; }.afc { left: 0; }.nfc { right: 0; }
+.round { position: absolute; top: 52px; text-align: center; font-size: 12px; color: #b5cbbb; text-transform: uppercase; letter-spacing: 1px; }
+.lines { position: absolute; inset: 0; pointer-events: none; }.lines path { fill: none; stroke: #71947a; stroke-width: 2; }
+.card { position: absolute; border: 1px solid #52755b; background: #142d1e; border-radius: 10px; padding: 12px 16px; }
+.card header { font-size: 9px; letter-spacing: 1px; color: #b2c8ba; margin-bottom: 7px; }.card > div { display: flex; justify-content: space-between; align-items: center; color: #a1b5a7; padding: 4px 0; font-size: 16px; }.card small { font-size: 11px; color: #a9bdaf; margin-right: 6px; }.card strong { font-size: 20px; font-variant-numeric: tabular-nums; }.card .winner { color: #c3f8cd; font-weight: bold; }.card p { font-size: 10px; color: #b2c8ba; margin-top: 8px; }.final { border-color: #d1c378; background: #303b23; box-shadow: 0 0 30px #d1c37818; }
+
+.reseed { position: absolute; top: 700px; text-align: center; font-size: 10px; color: #b5cbbb; }
+.card[role=button] { cursor: pointer; }.card[role=button]:hover { border-color: #a4e8ac; }.card[role=button]:focus-visible { outline: 3px solid #a4e8ac; outline-offset: 3px; }

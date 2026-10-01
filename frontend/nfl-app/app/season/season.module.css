@@ -1,0 +1,55 @@
+.canvas { background: #08170f; min-height: 100vh; }
+.schedule { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 16px; color: #afc7b6; font-size: 12px; }
+.page { max-width: 1240px; margin: auto; padding: 40px 24px 80px; color: #e9f3ec; font-family: Arial, sans-serif; }
+.hero { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 32px; padding: 32px; background: linear-gradient(120deg, #0b3326, #101e18); border: 1px solid #28533c; border-radius: 18px; }
+.hero h1 { font-size: clamp(30px, 4vw, 48px); letter-spacing: -1.5px; margin: 8px 0 14px; font-weight: 800; }
+.hero p { color: #b5cbbb; line-height: 1.6; }
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: #95e7ae !important; }
+.badge { border: 1px solid #557b60; padding: 12px 18px; border-radius: 30px; color: #acebb6; font-size: 11px; white-space: nowrap; letter-spacing: 1px; }
+.panel { background: #10251b; border: 1px solid #2b4535; border-radius: 14px; padding: 24px; margin-bottom: 24px; }
+.page h2 { font-size: 21px; font-weight: 700; margin-bottom: 12px; }
+.page h2 small { font-size: 14px; color: #a5b8ab; font-weight: normal; }
+.setup, .filters, .saved, .toolbar { display: flex; align-items: end; gap: 16px; flex-wrap: wrap; }
+.page label { display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: #b6c8ba; }
+.page select, .page input[type=number] { background: #091a12; color: #eef9f0; border: 1px solid #44634c; border-radius: 8px; padding: 11px 12px; min-width: 150px; }
+.page button { border: 1px solid #45654d; background: #193626; color: #e2f0e5; padding: 11px 15px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+.page button:hover:not(:disabled) { background: #2a5037; }
+.page button:disabled { opacity: .45; cursor: not-allowed; }
+.page button:focus-visible, .page select:focus-visible, .page input:focus-visible { outline: 3px solid #a5edb4; outline-offset: 3px; }
+.page .primary { background: #a4e8ac; color: #0a2616; font-weight: 800; margin-left: auto; }
+.page .check { flex-direction: row; align-items: center; padding: 12px 0; }
+.check input { accent-color: #a4e8ac; width: 17px; height: 17px; }
+.hint { font-size: 12px; color: #a7bbae; line-height: 1.7; margin: 12px 0; }
+.saved { border-top: 1px solid #2c4835; margin-top: 20px; padding-top: 20px; }
+.saved label { flex: 1; }
+.error { color: #ffd0c9; background: #4b241e; padding: 16px; border-radius: 8px; margin-top: 16px; }
+.progress { margin-top: 24px; }.progress > div { display: flex; justify-content: space-between; font-size: 13px; }
+.progress progress { width: 100%; height: 12px; accent-color: #a4e8ac; margin: 12px 0; }
+.progress small { color: #b7ccbc; }
+.empty { padding: 55px 24px; text-align: center; border: 1px dashed #47614e; border-radius: 14px; color: #b7cbbc; line-height: 1.8; background: #10251b; }
+.empty code { display: inline-block; overflow-wrap: anywhere; font-size: 12px; }
+.summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 28px 0; }
+.summary > div { background: #10251b; padding: 23px; border-radius: 12px; border: 1px solid #2b4535; }
+.summary small { display: block; font-size: 10px; color: #b1c5b6; letter-spacing: 1px; margin-bottom: 12px; }
+.summary strong { font-size: 32px; color: #b5efbe; }
+.toolbar { justify-content: space-between; margin: 24px 0; align-items: center; }
+.tabs { display: flex; gap: 6px; }.tabs button[aria-pressed=true] { background: #a4e8ac; color: #0a2616; }
+.filters { margin-bottom: 24px; }.weekNav { margin-left: auto; display: flex; gap: 8px; }
+.tableWrap { overflow-x: auto; }.page table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.page td, .page th { text-align: right; padding: 14px 12px; border-bottom: 1px solid #294334; white-space: nowrap; }
+.page th:first-child { text-align: left; }.page thead th { color: #a5b9ac; font-size: 11px; letter-spacing: 1px; }
+.page tbody tr:hover { background: #193525; }.page .teamLink { background: none; padding: 0; border: none; font-size: 14px; font-weight: 800; color: #c0f5c8; }
+.teamName { font-size: 12px; font-weight: normal; color: #afc0b4; margin-left: 8px; }
+.seed { font-size: 10px; background: #2b5037; color: #c9f5ce; padding: 4px 6px; border-radius: 4px; margin-left: 10px; }
+.positive { color: #a4e8ac; }.scoreGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(245px, 1fr)); gap: 16px; }
+.game { background: #10251b; border: 1px solid #35503e; border-radius: 10px; padding: 18px; margin-bottom: 12px; }
+.game > small { display: block; font-size: 10px; letter-spacing: 1px; color: #a9bbae; margin-bottom: 14px; }
+.game > div { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; color: #b0c0b4; }
+.game strong { font-size: 23px; font-variant-numeric: tabular-nums; }.game span { font-weight: 700; }.game span small { font-size: 9px; font-weight: normal; opacity: .8; }
+.game .winner { color: #c0f5c8; }.spaced { margin-top: 32px; }
+.conferences { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }.seedList { padding-left: 24px; }.seedList li { padding: 9px 0; border-bottom: 1px solid #294334; }
+.seedList span { float: right; color: #aec3b4; font-size: 12px; }
+.champion { padding: 32px; margin: 24px 0; border-radius: 14px; text-align: center; border: 1px solid #7c8251; background: linear-gradient(110deg, #273d25, #15291e); }
+.champion h2 { font-size: 34px; margin: 12px; }.champion > p:last-child { color: #b4c9b7; }
+@media(max-width: 760px) { .page { padding: 20px 14px 50px; }.hero { padding: 24px; }.badge { display: none; }.summary { grid-template-columns: repeat(2, 1fr); gap: 10px; }.summary > div { padding: 16px; }.conferences { grid-template-columns: 1fr; gap: 0; }.page .primary { margin-left: 0; }.teamName { display: none; }.toolbar { align-items: stretch; }.tabs { flex-wrap: wrap; }.weekNav { margin-left: 0; }.panel { padding: 16px; } }
+.game[role=button] { cursor: pointer; }.game[role=button]:hover { border-color: #a4e8ac; }.game[role=button]:focus-visible { outline: 3px solid #a4e8ac; outline-offset: 3px; }

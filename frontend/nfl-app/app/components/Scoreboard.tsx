@@ -8,6 +8,7 @@ type ScoreboardProps = {
   score1: number
   score2: number
   time: number
+  clockLabel?: string
   down: number
   loc: number
   distance: number
@@ -20,6 +21,7 @@ export default function Scoreboard({
   score1,
   score2,
   time,
+  clockLabel,
   down,
   loc,
   distance,
@@ -70,7 +72,7 @@ export default function Scoreboard({
         fontSize: '16px',
       }}>
         <span style={{ flex: 1 }}>Possession: {(possession == -1) ? team2 : team1}</span>
-        <span style={{ flex: 1, textAlign: 'right' }}>Time: {time}</span>
+        <span style={{ flex: 1, textAlign: 'right' }}>Time: {clockLabel ?? time}</span>
       </div>
       <div style={{
         display: 'flex',

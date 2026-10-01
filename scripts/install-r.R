@@ -1,0 +1,10 @@
+# Installs only when explicitly invoked by `make setup-r`.
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+project <- normalizePath(".")
+library_dir <- file.path(project, "data", "r-library")
+dir.create(library_dir, recursive=TRUE, showWarnings=FALSE)
+.libPaths(c(library_dir, .libPaths()))
+if (!requireNamespace("renv", quietly=TRUE)) install.packages("renv", lib=library_dir)
+Sys.setenv(RENV_PATHS_CACHE=file.path(project, "data", "r-cache"))
+renv::restore(lockfile=file.path(project, "pipeline", "renv.lock"), library=library_dir, prompt=FALSE)
+cat("Pinned R preparation dependencies ready\n")

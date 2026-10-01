@@ -2,9 +2,12 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useDataset } from './DatasetProvider'
 import { teamColors } from '../data/team_colors'
 
 type Props = {
+  busy: boolean
+  endGame: () => void
   team1: string
   team2: string
   year1: number
@@ -22,16 +25,12 @@ type Props = {
   setCoach2: (team: string) => void
 }
 
-export default function GameTopBar({ team1, team2, year1, year2, coach1, coach2, numState, setTeam1, setTeam2, setNumState, resetGame, setYear1, setYear2, setCoach1, setCoach2 }: Props) {
+export default function GameTopBar({ busy, endGame, team1, team2, year1, year2, coach1, coach2, numState, setTeam1, setTeam2, setNumState, resetGame, setYear1, setYear2, setCoach1, setCoach2 }: Props) {
   const router = useRouter()
   const [epEnabled, setEpEnabled] = useState(true)
 
-  const teamOptions = [
-    'ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB','HOU','IND','JAX','KC','LAC','LAR','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF','TB','TEN','WAS'
-  ]
-
-  const yearOptions = [2021, 2022, 2023, 2024]
-  const coachOptions = ['Human', 'AI', ...teamOptions]
+  const dataset = useDataset()
+  const yearOptions = dataset.yearOptions
 
   return (
     <div style={{
@@ -50,49 +49,51 @@ export default function GameTopBar({ team1, team2, year1, year2, coach1, coach2,
       {/* Team and Coach Selectors */}
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
         <label style={labelStyle}>Year 1:</label>
-        <select value={year1} onChange={e => setYear1(Number(e.target.value))} style={selectStyle}>
+        <select disabled={busy} value={year1} onChange={e => { setYear1(Number(e.target.value)); resetGame(); }} style={selectStyle}>
+          <option value={0} disabled>Select a season</option>
           {yearOptions.map(year => <option key={year} value={year}>{year}</option>)}
         </select>
 
         <label style={labelStyle}>Team 1:</label>
-        <select value={team1} onChange={e => setTeam1(e.target.value)} style={{
+        <select disabled={busy} value={team1} onChange={e => { setTeam1(e.target.value); resetGame(); }} style={{
           ...selectStyle,
           backgroundColor: teamColors[team1]?.primary || '#ffffff',
           color: teamColors[team1]?.secondary || '#000000'
         }}>
-          {teamOptions.map(team => <option key={team} value={team}>{team}</option>)}
+          {dataset.teamsFor(year1).map(team => <option key={team} value={team}>{team}</option>)}
         </select>
 
         <label style={labelStyle}>Coach 1:</label>
-        <select value={coach1} onChange={e => setCoach1(e.target.value)} style={{
+        <select disabled={busy} value={coach1} onChange={e => setCoach1(e.target.value)} style={{
           ...selectStyle,
           backgroundColor: teamColors[coach1]?.primary || '#ffffff',
           color: teamColors[coach1]?.secondary || '#000000'
         }}>
-          {coachOptions.map(coach => <option key={coach} value={coach}>{coach}</option>)}
+          {['Human', 'AI', ...dataset.teamsFor(year1)].map(coach => <option key={coach} value={coach}>{coach}</option>)}
         </select>
 
         <label style={labelStyle}>Year 2:</label>
-        <select value={year2} onChange={e => setYear2(Number(e.target.value))} style={selectStyle}>
+        <select disabled={busy} value={year2} onChange={e => { setYear2(Number(e.target.value)); resetGame(); }} style={selectStyle}>
+          <option value={0} disabled>Select a season</option>
           {yearOptions.map(year => <option key={year} value={year}>{year}</option>)}
         </select>
 
         <label style={labelStyle}>Team 2:</label>
-        <select value={team2} onChange={e => setTeam2(e.target.value)} style={{
+        <select disabled={busy} value={team2} onChange={e => { setTeam2(e.target.value); resetGame(); }} style={{
           ...selectStyle,
           backgroundColor: teamColors[team2]?.primary || '#ffffff',
           color: teamColors[team2]?.secondary || '#000000'
         }}>
-          {teamOptions.map(team => <option key={team} value={team}>{team}</option>)}
+          {dataset.teamsFor(year2).map(team => <option key={team} value={team}>{team}</option>)}
         </select>
 
         <label style={labelStyle}>Coach 2:</label>
-        <select value={coach2} onChange={e => setCoach2(e.target.value)} style={{
+        <select disabled={busy} value={coach2} onChange={e => setCoach2(e.target.value)} style={{
           ...selectStyle,
           backgroundColor: teamColors[coach2]?.primary || '#ffffff',
           color: teamColors[coach2]?.secondary || '#000000'
         }}>
-          {coachOptions.map(coach => <option key={coach} value={coach}>{coach}</option>)}
+          {['Human', 'AI', ...dataset.teamsFor(year2)].map(coach => <option key={coach} value={coach}>{coach}</option>)}
         </select>
 
         {/* <button
@@ -105,9 +106,9 @@ export default function GameTopBar({ team1, team2, year1, year2, coach1, coach2,
 
       {/* Action Buttons */}
       <div style={{ display: 'flex', gap: '10px' }}>
-        <button onClick={() => resetGame()} style={{ ...buttonStyle, backgroundColor: '#29ad29' }}>Restart</button>
-        <button onClick={() => setNumState(0)} style={{ ...buttonStyle, backgroundColor: '#F00' }}>End</button>
-        <button onClick={() => router.push('/')} style={buttonStyle}>Home</button>
+        <button disabled={busy} onClick={() => resetGame()} style={{ ...buttonStyle, backgroundColor: '#29ad29' }}>Restart</button>
+        <button disabled={busy} onClick={endGame} style={{ ...buttonStyle, backgroundColor: '#F00' }}>End</button>
+        <button disabled={busy} onClick={() => router.push('/')} style={buttonStyle}>Home</button>
       </div>
     </div>
   )

@@ -5,53 +5,24 @@ import TopBar from '../components/TopBar'
 import ColumnRankings from '../components/ColumnRanking'
 import ChartRankings from '../components/ChartRanking' // ✅ import the chart version
 
-import {
-  offenseValues2019, defenseValues2019,
-  offenseValues2020, defenseValues2020,
-  offenseValues2021, defenseValues2021,
-  offenseValues2022, defenseValues2022,
-  offenseValues2023, defenseValues2023,
-  offenseValues2024, defenseValues2024
-} from '../data/aep_values'
-
-const yearOptions = [
-  { label: '2019 Season', value: '2019' },
-  { label: '2020 Season', value: '2020' },
-  { label: '2021 Season', value: '2021' },
-  { label: '2022 Season', value: '2022' },
-  { label: '2023 Season', value: '2023' },
-  { label: '2024 Season', value: '2024' },
-]
+import { useDataset, DatasetStatus } from '../components/DatasetProvider'
 
 const rankingMethods = [
   { label: 'List View', value: 'list' },
   { label: 'Chart View', value: 'chart' },
 ]
 
-const offenseMap: Record<string, number[]> = {
-  '2019': offenseValues2019,
-  '2020': offenseValues2020,
-  '2021': offenseValues2021,
-  '2022': offenseValues2022,
-  '2023': offenseValues2023,
-  '2024': offenseValues2024,
-}
-
-const defenseMap: Record<string, number[]> = {
-  '2019': defenseValues2019,
-  '2020': defenseValues2020,
-  '2021': defenseValues2021,
-  '2022': defenseValues2022,
-  '2023': defenseValues2023,
-  '2024': defenseValues2024,
-}
-
 export default function RankingsPage() {
-  const [selectedYear, setSelectedYear] = useState('2024')
+  const [selectedYear, setSelectedYear] = useState('')
   const [rankingMethod, setRankingMethod] = useState<'list' | 'chart'>('list')
 
-  const offenseValues = offenseMap[selectedYear]
-  const defenseValues = defenseMap[selectedYear]
+  const dataset = useDataset()
+  const yearOptions = dataset.yearOptions.map(year => ({ label: `${year} Season`, value: String(year) }))
+  const values = dataset.rankings[selectedYear] || {}
+  const teamOrder = Object.keys(values)
+  const offenseValues = teamOrder.map(team => values[team].offense)
+  const defenseValues = teamOrder.map(team => values[team].defense)
+  if (dataset.loading || dataset.error || !dataset.seasons.length) return <><TopBar /><DatasetStatus /></>
 
   return (
     <div style={{
@@ -80,6 +51,7 @@ export default function RankingsPage() {
               onChange={(e) => setSelectedYear(e.target.value)}
               style={dropdownStyle}
             >
+              <option value="" disabled>Select a season</option>
               {yearOptions.map(option => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
@@ -101,19 +73,21 @@ export default function RankingsPage() {
         </div>
 
         {/* Rankings Component */}
-        {rankingMethod === 'list' ? (
+        {selectedYear && (rankingMethod === 'list' ? (
           <ColumnRankings
+            teamOrder={teamOrder}
             year={Number(selectedYear)}
             offenseValues={offenseValues}
             defenseValues={defenseValues}
           />
         ) : (
           <ChartRankings
+            teamOrder={teamOrder}
             year={Number(selectedYear)}
             offenseValues={offenseValues}
             defenseValues={defenseValues}
           />
-        )}
+        ))}
       </div>
     </div>
   )

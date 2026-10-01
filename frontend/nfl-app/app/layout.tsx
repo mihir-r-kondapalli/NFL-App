@@ -1,3 +1,4 @@
+import { DatasetProvider } from './components/DatasetProvider'
 // app/layout.tsx
 import './globals.css'
 import type { Metadata } from 'next'
@@ -16,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+        <DatasetProvider>{children}</DatasetProvider>
         <Analytics />
         </body>
     </html>

@@ -1,0 +1,10 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data:ro
+    environment:
+      NFLSIM_DATA_DIR: /data
+      NFLSIM_DATA_PROVIDER: local

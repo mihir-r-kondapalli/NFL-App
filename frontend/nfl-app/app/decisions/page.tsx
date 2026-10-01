@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import TopBar from '../components/TopBar'
+import { useDataset, DatasetStatus } from '../components/DatasetProvider'
 import CoachProbsFilters from '../components/CoachProbsFilters'
 import CoachProbsChart from '../components/CoachProbsChart'
 import CoachProbsTable from '../components/CoachProbsTable'
@@ -12,41 +13,36 @@ import { filterDataByRange, getValidDistance, normalizeYardlineRange } from '../
 export default function CoachProbsPage() {
   // State variables
   const [teams, setTeams] = useState<string[]>([])
-  const [years, setYears] = useState<number[]>([])
   const [downs, setDowns] = useState<number[]>([1, 2, 3, 4])
-  
+
   // Flag to prevent initial data loading
   const [hasInitiatedDataFetch, setHasInitiatedDataFetch] = useState<boolean>(false)
-  
+
   // Filter state
   const [filterState, setFilterState] = useState<FilterState>({
     selectedTeam: '',
-    selectedYear: 2024,
+    selectedYear: 0,
     selectedIsDefense: false,
     selectedDown: 1,
     selectedDistance: 10,
     yardlineRange: { start: 1, end: 100 }
   })
-  
+
   // Chart data
   const [chartData, setChartData] = useState<CoachProbData[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   // UI state
   const [viewMode, setViewMode] = useState<'chart' | 'table'>('chart')
   const [showOptimalPlayOnly, setShowOptimalPlayOnly] = useState<boolean>(false)
   const [highlightedYardline, setHighlightedYardline] = useState<number | null>(null)
-  
+
   // Hardcoded values
-  const allTeams = [
-    'ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB',
-    'HOU','IND','JAX','KC','LAC','LAR','LV','MIA','MIN','NE','NO','NYG',
-    'NYJ','PHI','PIT','SEA','SF','TB','TEN','WAS'
-  ];
-  
+
   // Year range
-  const yearOptions = [2021, 2022, 2023, 2024];
+  const dataset = useDataset();
+  const yearOptions = dataset.yearOptions;
 
   // Play type mapping
   const playTypeMap: {[key: number]: string} = {
@@ -107,34 +103,40 @@ export default function CoachProbsPage() {
     }
   };
 
-  // Fetch available teams and years on component mount
+  // Initialize display controls
   useEffect(() => {
     // Set teams from hardcoded list
-    setTeams(allTeams);
-    setFilterState((prev: FilterState) => ({ ...prev, selectedTeam: 'PHI' }));
-    
+
+
+
     // Set years from hardcoded options
-    setYears(yearOptions);
-    setFilterState((prev: FilterState) => ({ ...prev, selectedYear: yearOptions[yearOptions.length - 1] }));
-    
+
+
+
     // Set default distance
     setFilterState((prev: FilterState) => ({ ...prev, selectedDistance: getValidDistance(prev.selectedDown, 10) }));
   }, []);
+
+  useEffect(() => {
+    const available = dataset.seasons.find(s => s.year === filterState.selectedYear)?.teams || [];
+    setTeams(available);
+    setFilterState(prev => ({ ...prev, selectedTeam: available.includes(prev.selectedTeam) ? prev.selectedTeam : available[0] || '' }));
+  }, [dataset.seasons, filterState.selectedYear]);
 
   // Update filter state helper
   const updateFilterState = (updates: Partial<FilterState>) => {
     setFilterState((prev: FilterState) => {
       const newState = { ...prev, ...updates };
-      
+
       // Normalize yardline range if it was updated
       if (updates.yardlineRange) {
         const normalized = normalizeYardlineRange(
-          updates.yardlineRange.start, 
+          updates.yardlineRange.start,
           updates.yardlineRange.end
         );
         newState.yardlineRange = normalized;
       }
-      
+
       return newState;
     });
   };
@@ -156,7 +158,7 @@ export default function CoachProbsPage() {
     // Fetch new data with these parameters
     fetchCoachProbData();
   };
-  
+
   // Toggle between chart and table view
   const toggleViewMode = () => {
     setViewMode(viewMode === 'chart' ? 'table' : 'chart');
@@ -164,37 +166,43 @@ export default function CoachProbsPage() {
 
   // Fetch coach probability data
   const fetchCoachProbData = async () => {
+    if (!filterState.selectedYear || !filterState.selectedTeam) {
+      setError('Select a season and team first.');
+      return;
+    }
     setLoading(true);
     setError(null);
-    
+
     // Mark that user has initiated a data fetch
     setHasInitiatedDataFetch(true);
-    
+
     try {
       const response = await fetch('/api/fetchDecisions', {
         method: 'POST',
-        body: JSON.stringify({ 
-          team: filterState.selectedTeam, 
-          year: filterState.selectedYear, 
-          isDefense: filterState.selectedIsDefense, 
-          down: filterState.selectedDown, 
-          distance: filterState.selectedDistance 
+        body: JSON.stringify({
+          team: filterState.selectedTeam,
+          year: filterState.selectedYear,
+          isDefense: filterState.selectedIsDefense,
+          down: filterState.selectedDown,
+          distance: filterState.selectedDistance
         }),
         headers: { 'Content-Type': 'application/json' }
       });
-    
-      const { data, error } = await response.json();
-    
+
+      const result = await response.json();
+        if (!response.ok) throw new Error(typeof result.detail === 'string' ? result.detail : 'The data request failed.');
+        const { data, error } = result;
+
       if (error) throw error;
-    
+
       if (data && data.length > 0) {
         // Filter by yardline range
         const filteredData = filterDataByRange(
-          data, 
-          filterState.yardlineRange.start, 
+          data,
+          filterState.yardlineRange.start,
           filterState.yardlineRange.end
         );
-        
+
         // Process data for display
         const processedData = filteredData.map(item => ({
           ...item,
@@ -204,16 +212,16 @@ export default function CoachProbsPage() {
           punt_prob: parseFloat(item.punt_prob.toString()),
           ep: item.ep !== null ? parseFloat(item.ep.toString()) : null
         }));
-        
+
         setChartData(processedData);
       } else {
         setChartData([]);
         setError('No data available for the selected filters');
       }
-      
+
     } catch (error) {
       console.error('Error fetching coach probability data:', error);
-      setError('Failed to load coach probability data. Please try again later.');
+      setError(error instanceof Error ? error.message : 'Failed to load coach probability data.');
     } finally {
       setLoading(false);
     }
@@ -225,15 +233,17 @@ export default function CoachProbsPage() {
     if (!filterState.selectedTeam || !filterState.selectedYear || !filterState.selectedDown || !filterState.selectedDistance || !hasInitiatedDataFetch) {
       return;
     }
-    
+
     fetchCoachProbData();
   }, [
-    filterState.selectedTeam, 
-    filterState.selectedYear, 
-    filterState.selectedIsDefense, 
-    filterState.selectedDown, 
+    filterState.selectedTeam,
+    filterState.selectedYear,
+    filterState.selectedIsDefense,
+    filterState.selectedDown,
     filterState.selectedDistance
   ]);
+
+  if (dataset.loading || dataset.error || !dataset.seasons.length) return <><TopBar /><DatasetStatus /></>
 
   return (
     <div style={{
@@ -253,26 +263,26 @@ export default function CoachProbsPage() {
         margin: '0 auto',
         padding: '40px 24px',
       }}>
-        <h1 style={{ 
-          fontSize: '2.5rem', 
-          marginBottom: '20px', 
+        <h1 style={{
+          fontSize: '2.5rem',
+          marginBottom: '20px',
           color: theme.colors.accent.primary,
           fontWeight: 'bold'
         }}>
           Strategy
         </h1>
-        <p style={{ 
-          fontSize: '16px', 
-          color: theme.colors.text.secondary, 
-          marginBottom: '30px' 
+        <p style={{
+          fontSize: '16px',
+          color: theme.colors.text.secondary,
+          marginBottom: '30px'
         }}>
           Analyze how coaches make decisions across different field positions, downs, and distances.
         </p>
 
         {/* Filters Section */}
         <div style={{...cardStyle, backgroundColor: theme.colors.background.main}}>
-          <CoachProbsFilters 
-            allTeams={allTeams}
+          <CoachProbsFilters
+            allTeams={teams}
             yearOptions={yearOptions}
             downs={downs}
             filterState={filterState}
@@ -302,35 +312,35 @@ export default function CoachProbsPage() {
 
         {/* Chart Section */}
         <div style={{...cardStyle, marginTop: '30px', backgroundColor: theme.colors.background.main}}>
-          <h2 style={{ 
-            color: theme.colors.text.primary, 
+          <h2 style={{
+            color: theme.colors.text.primary,
             marginBottom: '5px',
             fontWeight: 'bold'
           }}>
             Coach Decision Probabilities by Yardline
           </h2>
-          <p style={{ 
-            color: theme.colors.text.secondary, 
-            marginBottom: '20px', 
+          <p style={{
+            color: theme.colors.text.secondary,
+            marginBottom: '20px',
             fontSize: '16px',
             fontWeight: '500'
           }}>
-            {teamNames[filterState.selectedTeam] || filterState.selectedTeam} ({filterState.selectedYear}) - 
-            {filterState.selectedIsDefense ? ' Defense' : ' Offense'}, 
+            {teamNames[filterState.selectedTeam] || filterState.selectedTeam} ({filterState.selectedYear}) -
+            {filterState.selectedIsDefense ? ' Defense' : ' Offense'},
             Down: {filterState.selectedDown}, Distance: {filterState.selectedDistance} yards
           </p>
 
           {!hasInitiatedDataFetch ? (
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
               alignItems: 'center',
               height: '400px',
               backgroundColor: theme.colors.background.dark,
               borderRadius: '4px',
               border: `1px solid ${theme.colors.accent.primary}`,
             }}>
-              <p style={{ 
+              <p style={{
                 color: theme.colors.text.secondary,
                 fontWeight: '500',
                 fontSize: '18px'
@@ -339,16 +349,16 @@ export default function CoachProbsPage() {
               </p>
             </div>
           ) : loading ? (
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
               alignItems: 'center',
               height: '400px',
               backgroundColor: theme.colors.background.dark,
               borderRadius: '4px',
               border: `1px solid ${theme.colors.accent.primary}`,
             }}>
-              <p style={{ 
+              <p style={{
                 color: theme.colors.text.secondary,
                 fontWeight: '500',
                 fontSize: '18px'
@@ -357,16 +367,16 @@ export default function CoachProbsPage() {
               </p>
             </div>
           ) : chartData.length === 0 ? (
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
               alignItems: 'center',
               height: '400px',
               backgroundColor: theme.colors.background.dark,
               borderRadius: '4px',
               border: `1px solid ${theme.colors.accent.primary}`,
             }}>
-              <p style={{ 
+              <p style={{
                 color: theme.colors.text.secondary,
                 fontWeight: '500',
                 fontSize: '18px'
@@ -376,7 +386,7 @@ export default function CoachProbsPage() {
             </div>
           ) : viewMode === 'chart' ? (
             // Chart View
-            <CoachProbsChart 
+            <CoachProbsChart
               data={chartData}
               playTypeColors={playTypeColors}
               playTypeMap={playTypeMap}
@@ -387,7 +397,7 @@ export default function CoachProbsPage() {
             />
           ) : (
             // Table View
-            <CoachProbsTable 
+            <CoachProbsTable
               data={chartData}
               playTypeColors={playTypeColors}
               playTypeMap={playTypeMap}
@@ -397,9 +407,9 @@ export default function CoachProbsPage() {
             />
           )}
 
-          <div style={{ 
-            marginTop: '15px', 
-            display: 'flex', 
+          <div style={{
+            marginTop: '15px',
+            display: 'flex',
             justifyContent: 'center',
             flexWrap: 'wrap',
             gap: '20px',
@@ -407,40 +417,40 @@ export default function CoachProbsPage() {
             color: theme.colors.text.secondary
           }}>
             <div>
-              <span style={{ 
-                display: 'inline-block', 
-                width: '12px', 
-                height: '12px', 
+              <span style={{
+                display: 'inline-block',
+                width: '12px',
+                height: '12px',
                 backgroundColor: playTypeColors.run_prob,
                 marginRight: '5px'
               }}></span>
               Run
             </div>
             <div>
-              <span style={{ 
-                display: 'inline-block', 
-                width: '12px', 
-                height: '12px', 
+              <span style={{
+                display: 'inline-block',
+                width: '12px',
+                height: '12px',
                 backgroundColor: playTypeColors.pass_prob,
                 marginRight: '5px'
               }}></span>
               Pass
             </div>
             <div>
-              <span style={{ 
-                display: 'inline-block', 
-                width: '12px', 
-                height: '12px', 
+              <span style={{
+                display: 'inline-block',
+                width: '12px',
+                height: '12px',
                 backgroundColor: playTypeColors.kick_prob,
                 marginRight: '5px'
               }}></span>
               Kick
             </div>
             <div>
-              <span style={{ 
-                display: 'inline-block', 
-                width: '12px', 
-                height: '12px', 
+              <span style={{
+                display: 'inline-block',
+                width: '12px',
+                height: '12px',
                 backgroundColor: playTypeColors.punt_prob,
                 marginRight: '5px'
               }}></span>
@@ -460,26 +470,26 @@ export default function CoachProbsPage() {
 
         {/* Description Section */}
         <div style={{...cardStyle, marginTop: '30px', backgroundColor: theme.colors.background.main}}>
-          <h2 style={{ 
-            color: theme.colors.text.primary, 
+          <h2 style={{
+            color: theme.colors.text.primary,
             marginBottom: '15px',
             fontWeight: 'bold'
           }}>
             About Coach Decision Probabilities
           </h2>
-          
+
           <p style={{ marginBottom: '15px', lineHeight: '1.5' }}>
             Coach Decision Probabilities show how often a coach chooses each play type (run, pass, kick, or punt) based on field position, down, and distance.
           </p>
-          
+
           <p style={{ marginBottom: '15px', lineHeight: '1.5' }}>
             The stacked column chart displays these probabilities for each yardline, with each color representing a different play type.
           </p>
-          
+
           <p style={{ marginBottom: '15px', lineHeight: '1.5' }}>
             The star markers indicate the optimal play choice according to the expected points model, allowing you to compare actual coaching decisions with analytically optimal choices.
           </p>
-          
+
           <div style={{ marginTop: '20px', padding: '15px', backgroundColor: theme.colors.background.dark, borderRadius: '4px', border: `1px solid ${theme.colors.accent.primary}` }}>
             <h3 style={{ color: theme.colors.text.primary, marginBottom: '10px', fontSize: '16px', fontWeight: 'bold' }}>Note about Coach Decision Models</h3>
             <ul style={{ color: theme.colors.text.secondary, paddingLeft: '20px', lineHeight: '1.5' }}>

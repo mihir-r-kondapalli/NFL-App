@@ -1,0 +1,8 @@
+.hub { background: #08170f; min-height: 100vh; }
+.switcher { max-width: 1192px; margin: auto; padding: 28px 24px 0; display: flex; gap: 20px; justify-content: space-between; align-items: center; color: #e9f3ec; font-family: Arial, sans-serif; }
+.switcher strong { font-size: 22px; }.switcher p { font-size: 13px; margin-top: 8px; color: #afc6b6; }
+.modes { display: flex; gap: 8px; padding: 6px; background: #10251b; border: 1px solid #35503e; border-radius: 12px; }
+.modes button { text-align: left; padding: 12px 20px; border: 0; border-radius: 8px; background: transparent; color: #b8cebf; font-size: 15px; cursor: pointer; font-weight: bold; }
+.modes button[aria-pressed=true] { background: #a4e8ac; color: #0a2616; }.modes small { display: block; font-size: 11px; font-weight: normal; margin-top: 5px; }
+.modes button:focus-visible { outline: 3px solid white; outline-offset: 3px; }
+@media(max-width: 650px) { .switcher { flex-direction: column; align-items: stretch; padding: 24px 14px 0; }.modes button { flex: 1; padding: 12px; } }
